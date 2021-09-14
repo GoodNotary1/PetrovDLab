@@ -9,6 +9,13 @@ struct Pipe
     bool Repair;
 };
 
+struct Station
+{
+    int id;
+    int total_divisions;
+    int working_divisions;
+};
+
 void PipeOutput(Pipe& pipe1);
 
 Pipe Create_pipe()
