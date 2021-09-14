@@ -14,6 +14,7 @@ struct Station
     int id;
     int total_divisions;
     int working_divisions;
+    int efficiency;
 };
 
 void PipeOutput(Pipe& pipe1);
