@@ -115,11 +115,30 @@ int percentCheck()
     }
 }
 
+bool booleanCheck()
+{
+    while (1)
+    {
+        bool boolean;
+        cin >> boolean;
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(100000000, '\n');
+            cout << "Invalid input." << endl << endl;
+        }
+        else
+        {
+            return boolean;
+        }
+    }
+}
+
 Pipe Create_pipe()
 {
     Pipe p = {};
     p.id = 0;
-    p.Repair = 0;
+    p.Repair = false;
     cout << "Input pipe diameter: ";
     p.d = intCheck();
     cout << "Input pipe length: ";
@@ -204,7 +223,7 @@ int main()
         {
             if (pipe_total > 0)
             {
-                cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back";
+                cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back" << endl;
                 a = intCheck();
                 switch (a)
                 {
@@ -218,7 +237,7 @@ int main()
                     break;
                 case 3:
                     cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
-                    p.d = intCheck();
+                    p.Repair = booleanCheck();
                     break;
                 case 0:
                     break;
