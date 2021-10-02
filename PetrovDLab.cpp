@@ -1,6 +1,9 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <string>
+#include <fstream>
+
 using namespace std;
 struct Pipe
 {
@@ -13,35 +16,11 @@ struct Pipe
 struct Station
 {
     int id;
+    string name;
     int total_divisions;
     int working_divisions;
     int efficiency;
 };
-
-Pipe Create_pipe()
-{
-    Pipe p = {}; //pipe is set up and values are zeroed
-    p.id = 0;
-    p.Repair = 0;
-    cout << "Input pipe diameter: ";
-    cin >> p.d;
-    cout << "Input pipe length: ";
-    cin >> p.l;
-    return p;
-}
-
-Station Create_station()
-{
-    Station s = {};
-    s.id = 0;
-    cout << "Input total station divisions: ";
-    cin >> s.total_divisions;
-    cout << "Input working divisions: ";
-    cin >> s.working_divisions;
-    cout << "Input station efficiency: ";
-    cin >> s.efficiency;
-    return s;
-}
 
 void PipeOutput(Pipe& p)
 {
@@ -54,9 +33,120 @@ void PipeOutput(Pipe& p)
 void StationOutput(Station& s)
 {
     cout << "Station ID:" << s.id << endl;
+    cout << "Station name:" << s.name << endl;
     cout << "Total divisions:" << s.total_divisions << endl;
     cout << "Working divisions:" << s.working_divisions << endl;
     cout << "Efficiency:" << s.efficiency << endl;
+}
+
+string stringCheck()
+{
+    while (1)
+    {
+        string str;
+        cin >> str;
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(100000, '\n');
+            cout << "Invalid input. Enter a string" << endl;
+        }
+        else
+        {
+            return str;
+        }
+    }
+}
+
+int intCheck()
+{
+    while (1)
+    {
+        int num;
+        cin >> num;
+        if (cin.fail() or num < 0)
+        {
+            cin.clear();
+            cin.ignore(100000000, '\n');
+            cout << "Invalid input" << endl << endl;
+        }
+        else
+        {
+            return num;
+        }
+    }
+}
+
+float floatCheck()
+{
+    while (1)
+    {
+        float num;
+        cin >> num;
+        if (cin.fail() or num < 0)
+        {
+            cin.clear();
+            cin.ignore(100000000, '\n');
+            cout << "Invalid input. Plese input the number according to the format 'X.X'" << endl << endl;
+        }
+        else
+        {
+            return num;
+        }
+    }
+}
+
+int percentCheck()
+{
+    while (1)
+    {
+        int num;
+        cin >> num;
+        if (cin.fail() or num < 0 or num > 100)
+        {
+            cin.clear();
+            cin.ignore(100000000, '\n');
+            cout << "Invalid input. Please input percent from 0 to 100" << endl << endl;
+        }
+        else
+        {
+            return num;
+        }
+    }
+}
+
+Pipe Create_pipe()
+{
+    Pipe p = {}; //pipe is set up and values are zeroed
+    p.id = 0;
+    p.Repair = 0;
+    cout << "Input pipe diameter: ";
+    p.d = intCheck();
+    cout << "Input pipe length: ";
+    p.l = floatCheck();
+    return p;
+}
+
+Station Create_station()
+{
+    Station s = {};
+    s.id = 0;
+    cout << "Input name: ";
+    s.name = stringCheck();
+    while (1)
+    {
+        cout << "Input total station divisions: ";
+        s.total_divisions = intCheck();
+        cout << "Input working divisions: ";
+        s.working_divisions = intCheck();
+        if (s.working_divisions <= s.total_divisions)
+            break;
+        else
+            cout << "Input error. Can't be more working divisions than total divisions" << endl;
+    }
+    cout << "Input station efficiency: ";
+    s.efficiency = percentCheck();
+    return s;
 }
 
 int main()
@@ -66,11 +156,14 @@ int main()
     while (1)
     {
         int a = 0;
-        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List info on all objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Save" << endl << "7. Load" << endl << "0. Exit"<<endl;
-        cin >> a;
+        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List info on all objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Save" << endl << "7. Load" << endl << "8. Exit"<<endl;
+        a = intCheck();
         switch (a)
         {
+        case 8:
+            return 0;
         case 1: 
+
             Pipe p = Create_pipe();
             cout << "Pipe created"<<endl;
             if (pipe_total == 0)
@@ -101,48 +194,140 @@ int main()
             if (pipe_total > 0)
             {
                 cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back";
-                cin >> a;
+                a = intCheck();
                 switch (a)
                 {
                 case 1:
                     cout << "Input diameter:" << endl;
-                    cin >> p.d;
+                    p.d = intCheck();
                     break;
                 case 2:
                     cout << "Input length:" << endl;
-                    cin >> p.l;
+                    p.l = floatCheck();
                     break;
                 case 3:
-                    cout << "Input repair status:" << endl;
-                    cin >> p.Repair;
+                    cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
+                    p.d = intCheck();
                     break;
                 case 0:
                     break;
                 }
+            }
+            else
+            {
+                cout << "No pipe to edit" << endl << endl;
+                break;
             }
         case 5:
             if (station_total > 0)
             {
-                cout << "Choose option:" << endl << endl << "1. Change total divisions" << endl << "2. Change working divisions" << endl << "3. Change efficiency" << endl << "0. Back";
-                cin >> a;
+                cout << "Choose option:" << endl << endl << "0. Back" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
+                a = intCheck();
                 switch (a)
                 {
-                case 1:
-                    cout << "Input total divisions:" << endl;
-                    cin >> s.total_divisions;
-                    break;
-                case 2:
-                    cout << "Input working divisions:" << endl;
-                    cin >> s.working_divisions;
-                    break;
-                case 3:
-                    cout << "Input efficiency:" << endl;
-                    cin >> s.efficiency;
-                    break;
                 case 0:
                     break;
+                case 1:
+                    cout << "Input name:" << endl;
+                    s.name = stringCheck();
+                    break;
+                case 2:
+                    cout << "Input efficiency:" << endl;
+                    s.efficiency = percentCheck();
+                    break;
+                case 3:
+                    while (1)
+                    {
+                        cout << "Input total station divisions: ";
+                        s.total_divisions = intCheck();
+                        cout << "Input working divisions: ";
+                        s.working_divisions = intCheck();
+                        if (s.working_divisions > s.total_divisions)
+                            cout << "Input error. Can't be more working divisions than total divisions" << endl;
+                        else break;
+                    }
                 }
             }
+            else
+            {
+                cout << "No station to edit" << endl<< endl;
+                break;
+            }
+        case 6:
+        {
+            ofstream file;
+            file.open("data.txt", ios_base::out);
+            if (file.good())
+            {
+                if (pipe_total>0)
+                {
+                    file << "pipeline_data" << endl << p.id << endl << p.l << endl << p.d << p.Repair << endl;
+                }
+                else
+                {
+                    cout << "No pipelines created";
+                }
+                if (station_total > 0)
+                {
+                    file << "station_data" << endl << s.id << endl << s.name << endl << s.total_divisions << endl << s.working_divisions << endl << s.efficiency << endl;
+                }
+                else
+                {
+                    cout << "No stations created" << endl;
+                }
+            }
+        file.close();
+        cout << "Save successful" << endl;
+        break;
+        }
+        case 7:
+        {
+            ifstream file;
+            file.open("data.txt", ios::in);
+            if (file.good())
+            {
+                while (!file.eof())
+                {
+                    string str;
+                    getline(file, str);
+                    if (str == "pipeline_data")
+                    {
+                        string value;
+                        getline(file, value);
+                        p.id = stoi(value);
+                        getline(file, value);
+                        p.l = stof(value);
+                        getline(file, value);
+                        p.d = stoi(value);
+                        getline(file, value);
+                        if (value == "1")
+                        {
+                            p.Repair = true;
+                        }
+                        else
+                        {
+                            p.Repair = false;
+                        }
+                    }
+                    if (str == "station_data")
+                    {
+                        string value;
+                        getline(file, value);
+                        s.id = stoi(value);
+                        getline(file, value);
+                        s.name = value;
+                        getline(file, value);
+                        s.total_divisions = stoi(value);
+                        getline(file, value);
+                        s.working_divisions = stoi(value);
+                        getline(file, value);
+                        s.efficiency = stoi(value);
+                    }
+                }
+                cout << "Loading complete" << endl;
+            }
+            break;
+        }
         }
     }
 }
