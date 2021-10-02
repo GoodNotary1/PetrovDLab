@@ -16,7 +16,7 @@ struct Pipe
 struct Station
 {
     int id;
-    string name;
+    string station_name;
     int total_divisions;
     int working_divisions;
     int efficiency;
@@ -33,7 +33,7 @@ void PipeOutput(Pipe& p)
 void StationOutput(Station& s)
 {
     cout << "Station ID:" << s.id << endl;
-    cout << "Station name:" << s.name << endl;
+    cout << "Station name:" << s.station_name << endl;
     cout << "Total divisions:" << s.total_divisions << endl;
     cout << "Working divisions:" << s.working_divisions << endl;
     cout << "Efficiency:" << s.efficiency << endl;
@@ -117,7 +117,7 @@ int percentCheck()
 
 Pipe Create_pipe()
 {
-    Pipe p = {}; //pipe is set up and values are zeroed
+    Pipe p = {};
     p.id = 0;
     p.Repair = 0;
     cout << "Input pipe diameter: ";
@@ -132,7 +132,7 @@ Station Create_station()
     Station s = {};
     s.id = 0;
     cout << "Input name: ";
-    s.name = stringCheck();
+    s.station_name = stringCheck();
     while (1)
     {
         cout << "Input total station divisions: ";
@@ -151,6 +151,8 @@ Station Create_station()
 
 int main()
 {
+    Pipe p = {};
+    Station s = {};
     int pipe_total = 0;
     int station_total = 0;
     while (1)
@@ -161,26 +163,33 @@ int main()
         switch (a)
         {
         case 8:
+        {
             return 0;
-        case 1: 
-
-            Pipe p = Create_pipe();
-            cout << "Pipe created"<<endl;
+            break;
+        }
+        case 1:
+        {
+            p = Create_pipe();
+            cout << "Pipe created" << endl;
             if (pipe_total == 0)
             {
                 ++pipe_total;
             }
             break;
+        }
         case 2:
-            Station s = Create_station();
-            cout << "Station created"<<endl;
+        {
+            s = Create_station();
+            cout << "Station created" << endl;
             if (station_total == 0)
             {
                 ++station_total;
             }
             break;
+        }
         case 3:
-            cout << "Total pipes: " << pipe_total << endl << "Total stations: " << station_total << endl<< endl;
+        {
+            cout << "Total pipes: " << pipe_total << endl << "Total stations: " << station_total << endl << endl;
             if (pipe_total > 0)
             {
                 PipeOutput(p);
@@ -190,7 +199,9 @@ int main()
                 StationOutput(s);
             }
             break;
+        }
         case 4:
+        {
             if (pipe_total > 0)
             {
                 cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back";
@@ -218,7 +229,9 @@ int main()
                 cout << "No pipe to edit" << endl << endl;
                 break;
             }
+        }
         case 5:
+        {
             if (station_total > 0)
             {
                 cout << "Choose option:" << endl << endl << "0. Back" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
@@ -229,7 +242,7 @@ int main()
                     break;
                 case 1:
                     cout << "Input name:" << endl;
-                    s.name = stringCheck();
+                    s.station_name = stringCheck();
                     break;
                 case 2:
                     cout << "Input efficiency:" << endl;
@@ -250,16 +263,17 @@ int main()
             }
             else
             {
-                cout << "No station to edit" << endl<< endl;
+                cout << "No station to edit" << endl << endl;
                 break;
             }
+        }
         case 6:
         {
             ofstream file;
             file.open("data.txt", ios_base::out);
             if (file.good())
             {
-                if (pipe_total>0)
+                if (pipe_total > 0)
                 {
                     file << "pipeline_data" << endl << p.id << endl << p.l << endl << p.d << p.Repair << endl;
                 }
@@ -269,17 +283,17 @@ int main()
                 }
                 if (station_total > 0)
                 {
-                    file << "station_data" << endl << s.id << endl << s.name << endl << s.total_divisions << endl << s.working_divisions << endl << s.efficiency << endl;
+                    file << "station_data" << endl << s.id << endl << s.station_name << endl << s.total_divisions << endl << s.working_divisions << endl << s.efficiency << endl;
                 }
                 else
                 {
                     cout << "No stations created" << endl;
                 }
             }
-        file.close();
-        cout << "Save successful" << endl;
-        break;
+            file.close();
+            cout << "Save successful" << endl;
         }
+        break;
         case 7:
         {
             ifstream file;
@@ -315,7 +329,7 @@ int main()
                         getline(file, value);
                         s.id = stoi(value);
                         getline(file, value);
-                        s.name = value;
+                        s.station_name = value;
                         getline(file, value);
                         s.total_divisions = stoi(value);
                         getline(file, value);
@@ -325,8 +339,8 @@ int main()
                     }
                 }
                 cout << "Loading complete" << endl;
+                break;
             }
-            break;
         }
         }
     }
