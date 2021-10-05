@@ -223,7 +223,7 @@ void SaveFile(int pipe_total, Pipe& p, int station_total, Station& s)
         {
             if (pipe_total > 0)
             {
-                file << "pipeline_data" << endl << p.id << endl << p.l << endl << p.d << p.Repair << endl;
+                file << "pipeline_data" << endl << p.id << endl << p.l << endl << p.d << endl << p.Repair << endl;
             }
             else
             {
