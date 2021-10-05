@@ -227,7 +227,7 @@ void SaveFile(int pipe_total, Pipe& p, int station_total, Station& s)
             }
             else
             {
-                cout << "No pipelines created";
+                cout << "No pipelines created" << endl;
             }
             if (station_total > 0)
             {
@@ -243,7 +243,80 @@ void SaveFile(int pipe_total, Pipe& p, int station_total, Station& s)
     }
 }
 
+void EditStation(int station_total, int& a, Station& s, int& retflag)
+{
+    retflag = 1;
+    {
+        if (station_total > 0)
+        {
+            cout << "Choose option:" << endl << endl << "0. Back" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
+            a = intCheck();
+            switch (a)
+            {
+            case 0:
+                break;
+            case 1:
+                cout << "Input name:" << endl;
+                s.station_name = stringCheck();
+                break;
+            case 2:
+                cout << "Input efficiency:" << endl;
+                s.efficiency = percentCheck();
+                break;
+            case 3:
+                while (1)
+                {
+                    cout << "Input total station divisions: ";
+                    s.total_divisions = intCheck();
+                    cout << "Input working divisions: ";
+                    s.working_divisions = intCheck();
+                    if (s.working_divisions > s.total_divisions)
+                        cout << "Input error. Can't be more working divisions than total divisions" << endl;
+                    else break;
+                }
+            }
+        }
+        else
+        {
+            cout << "No station to edit" << endl << endl;
+            { retflag = 2; return; };
+        }
+    }
+}
 
+void EditPipe(int pipe_total, int& a, Pipe& p, int& retflag)
+{
+    retflag = 1;
+    {
+        if (pipe_total > 0)
+        {
+            cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back" << endl;
+            a = intCheck();
+            switch (a)
+            {
+            case 1:
+                cout << "Input diameter:" << endl;
+                p.d = intCheck();
+                break;
+            case 2:
+                cout << "Input length:" << endl;
+                p.l = floatCheck();
+                break;
+            case 3:
+                cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
+                p.Repair = booleanCheck();
+                break;
+            case 0:
+                break;
+            }
+        }
+        else
+        {
+            cout << "No pipe to edit" << endl << endl;
+            { retflag = 2; return; };
+        }
+    }
+}
 
 int main()
 {
@@ -295,70 +368,15 @@ int main()
         }
         case 4:
         {
-            if (pipe_total > 0)
-            {
-                cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back" << endl;
-                a = intCheck();
-                switch (a)
-                {
-                case 1:
-                    cout << "Input diameter:" << endl;
-                    p.d = intCheck();
-                    break;
-                case 2:
-                    cout << "Input length:" << endl;
-                    p.l = floatCheck();
-                    break;
-                case 3:
-                    cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
-                    p.Repair = booleanCheck();
-                    break;
-                case 0:
-                    break;
-                }
-            }
-            else
-            {
-                cout << "No pipe to edit" << endl << endl;
-                break;
-            }
+            int retflag;
+            EditPipe(pipe_total, a, p, retflag);
+            if (retflag == 2) break;
         }
         case 5:
         {
-            if (station_total > 0)
-            {
-                cout << "Choose option:" << endl << endl << "0. Back" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
-                a = intCheck();
-                switch (a)
-                {
-                case 0:
-                    break;
-                case 1:
-                    cout << "Input name:" << endl;
-                    s.station_name = stringCheck();
-                    break;
-                case 2:
-                    cout << "Input efficiency:" << endl;
-                    s.efficiency = percentCheck();
-                    break;
-                case 3:
-                    while (1)
-                    {
-                        cout << "Input total station divisions: ";
-                        s.total_divisions = intCheck();
-                        cout << "Input working divisions: ";
-                        s.working_divisions = intCheck();
-                        if (s.working_divisions > s.total_divisions)
-                            cout << "Input error. Can't be more working divisions than total divisions" << endl;
-                        else break;
-                    }
-                }
-            }
-            else
-            {
-                cout << "No station to edit" << endl << endl;
-                break;
-            }
+            int retflag;
+            EditStation(station_total, a, s, retflag);
+            if (retflag == 2) break;
         }
         case 6:
             SaveFile(pipe_total, p, station_total, s);
@@ -370,5 +388,8 @@ int main()
         }
     }
 }
+
+
+
 
 
