@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string>
 #include <fstream>
+#include "PetrovDLab.h"
 
 using namespace std;
 struct Pipe
@@ -168,6 +169,82 @@ Station Create_station()
     return s;
 }
 
+void LoadFile(Pipe& p, Station& s, int& retflag)
+{
+    retflag = 1;
+    {
+        ifstream file;
+        file.open("data.txt", ios::in);
+        if (file.good())
+        {
+            while (!file.eof())
+            {
+                string str;
+                getline(file, str);
+                if (str == "pipeline_data")
+                {
+                    string value;
+                    getline(file, value);
+                    p.id = stoi(value);
+                    getline(file, value);
+                    p.l = stof(value);
+                    getline(file, value);
+                    p.d = stoi(value);
+                    getline(file, value);
+                    p.Repair = value == "1";
+                }
+                if (str == "station_data")
+                {
+                    string value;
+                    getline(file, value);
+                    s.id = stoi(value);
+                    getline(file, value);
+                    s.station_name = value;
+                    getline(file, value);
+                    s.total_divisions = stoi(value);
+                    getline(file, value);
+                    s.working_divisions = stoi(value);
+                    getline(file, value);
+                    s.efficiency = stoi(value);
+                }
+            }
+            cout << "Loading complete" << endl;
+            { retflag = 2; return; };
+        }
+    }
+}
+
+void SaveFile(int pipe_total, Pipe& p, int station_total, Station& s)
+{
+    {
+        ofstream file;
+        file.open("data.txt", ios_base::out);
+        if (file.good())
+        {
+            if (pipe_total > 0)
+            {
+                file << "pipeline_data" << endl << p.id << endl << p.l << endl << p.d << p.Repair << endl;
+            }
+            else
+            {
+                cout << "No pipelines created";
+            }
+            if (station_total > 0)
+            {
+                file << "station_data" << endl << s.id << endl << s.station_name << endl << s.total_divisions << endl << s.working_divisions << endl << s.efficiency << endl;
+            }
+            else
+            {
+                cout << "No stations created" << endl;
+            }
+        }
+        file.close();
+        cout << "Save successful" << endl;
+    }
+}
+
+
+
 int main()
 {
     Pipe p = {};
@@ -177,11 +254,11 @@ int main()
     while (1)
     {
         int a = 0;
-        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List info on all objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Save" << endl << "7. Load" << endl << "8. Exit"<<endl;
+        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List info on all objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Save" << endl << "7. Load" << endl << "0. Exit"<<endl;
         a = intCheck();
         switch (a)
         {
-        case 8:
+        case 0:
         {
             return 0;
             break;
@@ -190,10 +267,7 @@ int main()
         {
             p = Create_pipe();
             cout << "Pipe created" << endl;
-            if (pipe_total == 0)
-            {
-                ++pipe_total;
-            }
+            pipe_total=1;
             break;
         }
         case 2:
@@ -287,80 +361,14 @@ int main()
             }
         }
         case 6:
-        {
-            ofstream file;
-            file.open("data.txt", ios_base::out);
-            if (file.good())
-            {
-                if (pipe_total > 0)
-                {
-                    file << "pipeline_data" << endl << p.id << endl << p.l << endl << p.d << p.Repair << endl;
-                }
-                else
-                {
-                    cout << "No pipelines created";
-                }
-                if (station_total > 0)
-                {
-                    file << "station_data" << endl << s.id << endl << s.station_name << endl << s.total_divisions << endl << s.working_divisions << endl << s.efficiency << endl;
-                }
-                else
-                {
-                    cout << "No stations created" << endl;
-                }
-            }
-            file.close();
-            cout << "Save successful" << endl;
-        }
+            SaveFile(pipe_total, p, station_total, s);
         break;
         case 7:
-        {
-            ifstream file;
-            file.open("data.txt", ios::in);
-            if (file.good())
-            {
-                while (!file.eof())
-                {
-                    string str;
-                    getline(file, str);
-                    if (str == "pipeline_data")
-                    {
-                        string value;
-                        getline(file, value);
-                        p.id = stoi(value);
-                        getline(file, value);
-                        p.l = stof(value);
-                        getline(file, value);
-                        p.d = stoi(value);
-                        getline(file, value);
-                        if (value == "1")
-                        {
-                            p.Repair = true;
-                        }
-                        else
-                        {
-                            p.Repair = false;
-                        }
-                    }
-                    if (str == "station_data")
-                    {
-                        string value;
-                        getline(file, value);
-                        s.id = stoi(value);
-                        getline(file, value);
-                        s.station_name = value;
-                        getline(file, value);
-                        s.total_divisions = stoi(value);
-                        getline(file, value);
-                        s.working_divisions = stoi(value);
-                        getline(file, value);
-                        s.efficiency = stoi(value);
-                    }
-                }
-                cout << "Loading complete" << endl;
-                break;
-            }
-        }
+            int retflag;
+            LoadFile(p, s, retflag);
+            if (retflag == 2) break;
         }
     }
 }
+
+
