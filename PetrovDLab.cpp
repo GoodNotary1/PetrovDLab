@@ -45,17 +45,9 @@ string stringCheck()
     while (1)
     {
         string str;
-        cin >> str;
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(100000, '\n');
-            cout << "Invalid input. Enter a string" << endl;
-        }
-        else
-        {
+        cin >> ws;
+        getline(cin, str);
             return str;
-        }
     }
 }
 
