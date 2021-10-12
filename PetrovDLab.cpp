@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include "PetrovDLab.h"
+#include <limits>
 
 using namespace std;
 struct Pipe
@@ -51,13 +52,13 @@ string stringCheck()
     }
 }
 
-int intCheck()
+int intCheck(int min=0, int max=INT_MAX)
 {
     while (1)
     {
         int num;
         cin >> num;
-        if (cin.fail() or num < 0)
+        if (cin.fail() or num < min or num > max or cin.peek() != '\n')
         {
             cin.clear();
             cin.ignore(100000000, '\n');
@@ -70,36 +71,17 @@ int intCheck()
     }
 }
 
-float floatCheck()
+float floatCheck(float min=0, float max=FLT_MAX)
 {
     while (1)
     {
         float num;
         cin >> num;
-        if (cin.fail() or num < 0)
+        if (cin.fail() or num < min or num > max or cin.peek() != '\n')
         {
             cin.clear();
             cin.ignore(100000000, '\n');
             cout << "Invalid input. Plese input the number according to the format 'X.X'" << endl << endl;
-        }
-        else
-        {
-            return num;
-        }
-    }
-}
-
-int percentCheck()
-{
-    while (1)
-    {
-        int num;
-        cin >> num;
-        if (cin.fail() or num < 0 or num > 100)
-        {
-            cin.clear();
-            cin.ignore(100000000, '\n');
-            cout << "Invalid input. Please input percent from 0 to 100" << endl << endl;
         }
         else
         {
@@ -135,7 +117,7 @@ Pipe Create_pipe()
     cout << "Input pipe diameter: ";
     p.d = intCheck();
     cout << "Input pipe length: ";
-    p.l = floatCheck();
+    p.l = floatCheck(0);
     return p;
 }
 
@@ -157,7 +139,7 @@ Station Create_station()
             cout << "Input error. Can't be more working divisions than total divisions" << endl;
     }
     cout << "Input station efficiency: ";
-    s.efficiency = percentCheck();
+    s.efficiency = intCheck(0, 100);
     return s;
 }
 
@@ -253,7 +235,7 @@ void EditStation(int station_total, int& a, Station& s, int& retflag)
                 break;
             case 2:
                 cout << "Input efficiency:" << endl;
-                s.efficiency = percentCheck();
+                s.efficiency = intCheck(0, 100);
                 break;
             case 3:
                 while (1)
