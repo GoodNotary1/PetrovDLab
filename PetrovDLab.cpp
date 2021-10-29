@@ -5,8 +5,14 @@
 #include <fstream>
 #include "PetrovDLab.h"
 #include <limits>
+#include <unordered_map>
+#include <vector>
 
 using namespace std;
+
+int pipe_total = 0;
+int station_total = 0;
+
 struct Pipe
 {
     int id;
@@ -112,7 +118,7 @@ bool booleanCheck()
 Pipe Create_pipe()
 {
     Pipe p = {};
-    p.id = 0;
+    p.id = pipe_total;
     p.Repair = false;
     cout << "Input pipe diameter: ";
     p.d = intCheck();
@@ -124,7 +130,7 @@ Pipe Create_pipe()
 Station Create_station()
 {
     Station s = {};
-    s.id = 0;
+    s.id = station_total;
     cout << "Input name: ";
     s.station_name = stringCheck();
     while (1)
@@ -221,9 +227,7 @@ void EditStation(int station_total, int& a, Station& s, int& retflag)
 {
     retflag = 1;
     {
-        if (station_total > 0)
-        {
-            cout << "Choose option:" << endl << endl << "0. Back" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
+            cout << "Choose option:" << endl << endl << "0. Back" << endl << "1. Change name" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
             a = intCheck();
             switch (a)
             {
@@ -249,12 +253,6 @@ void EditStation(int station_total, int& a, Station& s, int& retflag)
                     else break;
                 }
             }
-        }
-        else
-        {
-            cout << "No station to edit" << endl << endl;
-            { retflag = 2; return; };
-        }
     }
 }
 
@@ -262,8 +260,6 @@ void EditPipe(int pipe_total, int& a, Pipe& p, int& retflag)
 {
     retflag = 1;
     {
-        if (pipe_total > 0)
-        {
             cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back" << endl;
             a = intCheck();
             switch (a)
@@ -283,25 +279,17 @@ void EditPipe(int pipe_total, int& a, Pipe& p, int& retflag)
             case 0:
                 break;
             }
-        }
-        else
-        {
-            cout << "No pipe to edit" << endl << endl;
-            { retflag = 2; return; };
-        }
     }
 }
 
 int main()
 {
-    Pipe p = {};
-    Station s = {};
-    int pipe_total = 0;
-    int station_total = 0;
+    unordered_map <int, Pipe> pipes = {};
+    unordered_map <int, Station> stations = {};
     while (1)
     {
         int a = 0;
-        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List info on all objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Save" << endl << "7. Load" << endl << "0. Exit"<<endl;
+        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Save" << endl << "7. Load" << endl << "0. Exit"<<endl;
         a = intCheck();
         switch (a)
         {
@@ -312,53 +300,85 @@ int main()
         }
         case 1:
         {
-            p = Create_pipe();
+            pipes.insert({pipe_total , Create_pipe() });
             cout << "Pipe created" << endl;
-            pipe_total=1;
+            ++pipe_total;
             break;
         }
         case 2:
         {
-            s = Create_station();
+            stations.insert({station_total , Create_station() });
             cout << "Station created" << endl;
-            if (station_total == 0)
-            {
-                ++station_total;
-            }
+            ++station_total;
             break;
         }
         case 3:
         {
-            cout << "Total pipes: " << pipe_total << endl << "Total stations: " << station_total << endl << endl;
+            cout << "Total pipes: " << pipe_total << endl << endl;
             if (pipe_total > 0)
             {
-                PipeOutput(p);
+                for (auto kv : pipes)
+                {
+                    cout << kv.first << endl;
+                    PipeOutput(pipes[kv.first]);
+                    cout << endl;
+                }
             }
+            cout << "Total stations: " << station_total << endl << endl;
             if (station_total > 0)
             {
-                StationOutput(s);
+                for (auto kv : stations)
+                {
+                    cout << kv.first << endl;
+                    StationOutput(stations[kv.first]);
+                    cout << endl;
+                }
             }
             break;
         }
         case 4:
         {
-            int retflag;
-            EditPipe(pipe_total, a, p, retflag);
-            if (retflag == 2) break;
+            if (pipe_total != 0)
+            {
+                cout << "Input pipe ID to edit: " << endl;
+                int input_id = intCheck();
+                if (pipes.find(input_id) != pipes.end())
+                {
+                    int retflag;
+                    EditPipe(pipe_total, a, pipes[input_id], retflag);
+                    if (retflag == 2) break;
+                    break;
+                }
+                else break;
+            }
+            else cout << "No pipes to edit" << endl;
         }
         case 5:
         {
-            int retflag;
-            EditStation(station_total, a, s, retflag);
-            if (retflag == 2) break;
+            if (station_total != 0)
+            {
+                cout << "Input station ID to edit: " << endl;
+                int input_id = intCheck();
+                if (stations.find(input_id) != stations.end())
+                {
+                    int retflag;
+                    EditStation(station_total, a, stations[input_id], retflag);
+                    if (retflag == 2) break;
+                    break;
+                }
+                else break;
+            }
+            else cout << "No stations to edit" << endl;
         }
-        case 6:
+        /*
+                case 6:
             SaveFile(pipe_total, p, station_total, s);
         break;
         case 7:
             int retflag;
             LoadFile(p, s, retflag);
             if (retflag == 2) break;
+        */
         }
     }
 }
