@@ -289,7 +289,7 @@ int main()
     while (1)
     {
         int a = 0;
-        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Save" << endl << "7. Load" << endl << "0. Exit"<<endl;
+        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "0. Exit" << endl;
         a = intCheck();
         switch (a)
         {
@@ -314,8 +314,8 @@ int main()
         }
         case 3:
         {
-            cout << "Total pipes: " << pipe_total << endl << endl;
-            if (pipe_total > 0)
+            cout << "Total pipes created: " << pipe_total << endl << endl;
+            if (pipes.empty() == false)
             {
                 for (auto kv : pipes)
                 {
@@ -324,8 +324,8 @@ int main()
                     cout << endl;
                 }
             }
-            cout << "Total stations: " << station_total << endl << endl;
-            if (station_total > 0)
+            cout << "Total stations created: " << station_total << endl << endl;
+            if (stations.empty() == false)
             {
                 for (auto kv : stations)
                 {
@@ -338,7 +338,7 @@ int main()
         }
         case 4:
         {
-            if (pipe_total != 0)
+            if (pipes.empty() == false)
             {
                 cout << "Input pipe ID to edit: " << endl;
                 int input_id = intCheck();
@@ -349,13 +349,21 @@ int main()
                     if (retflag == 2) break;
                     break;
                 }
-                else break;
+                else
+                {
+                    cout << "No matching ID found" << endl;
+                    break;
+                }
             }
-            else cout << "No pipes to edit" << endl;
+            else
+            {
+                cout << "No pipes to edit" << endl;
+                break;
+            }
         }
         case 5:
         {
-            if (station_total != 0)
+            if (stations.empty() == false)
             {
                 cout << "Input station ID to edit: " << endl;
                 int input_id = intCheck();
@@ -366,15 +374,69 @@ int main()
                     if (retflag == 2) break;
                     break;
                 }
-                else break;
+                else
+                {
+                    cout << "No matching ID found" << endl;
+                    break;
+                }
             }
-            else cout << "No stations to edit" << endl;
+            else
+            {
+                cout << "No stations to edit" << endl;
+                break;
+            }
+        }
+        case 6:
+        {
+            if (pipes.empty() == false)
+            {
+                cout << "Input pipe ID:" << endl;
+                int input_id = intCheck();
+                if (pipes.find(input_id) != pipes.end())
+                {
+                    pipes.erase(input_id);
+                    break;
+                }
+                else
+                {
+                    cout << "No matching ID found";
+                    break;
+                }
+            }
+            else
+            {
+                cout << "No pipes to delete" << endl;
+                break;
+            }
+        }
+        case 7:
+        {
+            if  (stations.empty() == false)
+            {
+                cout << "Input station ID:" << endl;
+                int input_id = intCheck();
+                if (stations.find(input_id) != stations.end())
+                {
+                    stations.erase(input_id);
+                    break;
+                }
+                else
+                {
+                    cout << "No matching ID found";
+                    break;
+                }
+            }
+            else
+            {
+                cout << "No stations to delete" << endl;
+                break;
+            }
         }
         /*
-                case 6:
+                case 8:
             SaveFile(pipe_total, p, station_total, s);
         break;
-        case 7:
+        case 9:
             int retflag;
             LoadFile(p, s, retflag);
             if (retflag == 2) break;
