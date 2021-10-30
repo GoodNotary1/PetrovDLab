@@ -12,6 +12,8 @@ using namespace std;
 
 int pipe_total = 0;
 int station_total = 0;
+unordered_map <int, Pipe> pipes = {};
+unordered_map <int, Station> stations = {};
 
 struct Pipe
 {
@@ -149,7 +151,7 @@ Station Create_station()
     return s;
 }
 
-void LoadFile(Pipe& p, Station& s, int& retflag)
+void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stations, int& retflag)
 {
     retflag = 1;
     {
@@ -165,27 +167,47 @@ void LoadFile(Pipe& p, Station& s, int& retflag)
                 {
                     string value;
                     getline(file, value);
-                    p.id = stoi(value);
+                    int pipe_keys = stoi(value);
                     getline(file, value);
-                    p.l = stof(value);
-                    getline(file, value);
-                    p.d = stoi(value);
-                    getline(file, value);
-                    p.Repair = value == "1";
+                    pipe_total = stoi(value);
+                    for (int i = 1; i <= pipe_keys; i++)
+                    {
+                        getline(file, value);
+                        int dynam_key = stoi(value);
+                        pipes.insert({ dynam_key, {} });
+                        getline(file, value);
+                        pipes[dynam_key].id = stoi(value);
+                        getline(file, value);
+                        pipes[dynam_key].d = stoi(value);
+                        getline(file, value);
+                        pipes[dynam_key].l = stof(value);
+                        getline(file, value);
+                        pipes[dynam_key].Repair = value == "1";
+                    }
                 }
                 if (str == "station_data")
                 {
                     string value;
                     getline(file, value);
-                    s.id = stoi(value);
+                    int station_keys = stoi(value);
                     getline(file, value);
-                    s.station_name = value;
-                    getline(file, value);
-                    s.total_divisions = stoi(value);
-                    getline(file, value);
-                    s.working_divisions = stoi(value);
-                    getline(file, value);
-                    s.efficiency = stoi(value);
+                    station_total = stoi(value);
+                    for (int i = 1; i <= station_keys; i++)
+                    {
+                        getline(file, value);
+                        int dynam_key = stoi(value);
+                        stations.insert({ dynam_key,{} });
+                        getline(file, value);
+                        stations[dynam_key].id = stoi(value);
+                        getline(file, value);
+                        stations[dynam_key].station_name = value;
+                        getline(file, value);
+                        stations[dynam_key].total_divisions = stoi(value);
+                        getline(file, value);
+                        stations[dynam_key].working_divisions = stoi(value);
+                        getline(file, value);
+                        stations[dynam_key].efficiency = stoi(value);
+                    }
                 }
             }
             cout << "Loading complete" << endl;
@@ -194,24 +216,32 @@ void LoadFile(Pipe& p, Station& s, int& retflag)
     }
 }
 
-void SaveFile(int pipe_total, Pipe& p, int station_total, Station& s)
+void SaveFile(int pipe_total, unordered_map<int, Pipe>& pipes, int station_total, unordered_map<int, Station>& stations)
 {
     {
         ofstream file;
         file.open("data.txt", ios_base::out);
         if (file.good())
         {
-            if (pipe_total > 0)
+            if (pipes.empty() == false)
             {
-                file << "pipeline_data" << endl << p.id << endl << p.l << endl << p.d << endl << p.Repair << endl;
+                file << "pipeline_data" << endl << pipes.size()<< endl << pipe_total << endl;
+                for (auto kv : pipes)
+                {
+                    file << kv.first << endl << pipes[kv.first].id << endl << pipes[kv.first].d << endl << pipes[kv.first].l << endl << pipes[kv.first].Repair << endl;
+                }
             }
             else
             {
                 cout << "No pipelines created" << endl;
             }
-            if (station_total > 0)
+            if (stations.empty() == false)
             {
-                file << "station_data" << endl << s.id << endl << s.station_name << endl << s.total_divisions << endl << s.working_divisions << endl << s.efficiency << endl;
+                file << "station_data" << endl << stations.size() << endl << station_total << endl;
+                for (auto kv : stations)
+                {
+                    file << kv.first << endl << stations[kv.first].id << endl << stations[kv.first].station_name << endl << stations[kv.first].total_divisions << endl << stations[kv.first].working_divisions << endl << stations[kv.first].efficiency << endl;
+                }
             }
             else
             {
@@ -284,8 +314,6 @@ void EditPipe(int pipe_total, int& a, Pipe& p, int& retflag)
 
 int main()
 {
-    unordered_map <int, Pipe> pipes = {};
-    unordered_map <int, Station> stations = {};
     while (1)
     {
         int a = 0;
@@ -432,15 +460,14 @@ int main()
                 break;
             }
         }
-        /*
-                case 8:
-            SaveFile(pipe_total, p, station_total, s);
-        break;
+
+        case 8:
+            SaveFile(pipe_total, pipes, station_total, stations);
+            break;
         case 9:
             int retflag;
-            LoadFile(p, s, retflag);
+            LoadFile(pipes, stations, retflag);
             if (retflag == 2) break;
-        */
         }
     }
 }
