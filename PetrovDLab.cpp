@@ -12,8 +12,8 @@ using namespace std;
 
 int pipe_total = 0;
 int station_total = 0;
-unordered_map <int, Pipe> pipes = {};
-unordered_map <int, Station> stations = {};
+unordered_map <float, Pipe> pipes = {};
+unordered_map <float, Station> stations = {};
 
 struct Pipe
 {
@@ -151,7 +151,7 @@ Station Create_station()
     return s;
 }
 
-void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stations, int& retflag)
+void LoadFile(unordered_map<float, Pipe>& pipes, unordered_map<float, Station>& stations, int& retflag)
 {
     retflag = 1;
     {
@@ -173,7 +173,7 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
                     for (int i = 1; i <= pipe_keys; i++)
                     {
                         getline(file, value);
-                        int dynam_key = stoi(value);
+                        float dynam_key = stof(value);
                         pipes.insert({ dynam_key, {} });
                         getline(file, value);
                         pipes[dynam_key].id = stoi(value);
@@ -195,7 +195,7 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
                     for (int i = 1; i <= station_keys; i++)
                     {
                         getline(file, value);
-                        int dynam_key = stoi(value);
+                        float dynam_key = stof(value);
                         stations.insert({ dynam_key,{} });
                         getline(file, value);
                         stations[dynam_key].id = stoi(value);
@@ -216,7 +216,7 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
     }
 }
 
-void SaveFile(int pipe_total, unordered_map<int, Pipe>& pipes, int station_total, unordered_map<int, Station>& stations)
+void SaveFile(int pipe_total, unordered_map<float, Pipe>& pipes, int station_total, unordered_map<float, Station>& stations)
 {
     {
         ofstream file;
@@ -328,14 +328,14 @@ int main()
         }
         case 1:
         {
-            pipes.insert({pipe_total , Create_pipe() });
+            pipes.insert({pipe_total+0.1, Create_pipe() });
             cout << "Pipe created" << endl;
             ++pipe_total;
             break;
         }
         case 2:
         {
-            stations.insert({station_total , Create_station() });
+            stations.insert({station_total+0.2 , Create_station() });
             cout << "Station created" << endl;
             ++station_total;
             break;
@@ -370,10 +370,10 @@ int main()
             {
                 cout << "Input pipe ID to edit: " << endl;
                 int input_id = intCheck();
-                if (pipes.find(input_id) != pipes.end())
+                if (pipes.find(input_id+0.1) != pipes.end())
                 {
                     int retflag;
-                    EditPipe(pipe_total, a, pipes[input_id], retflag);
+                    EditPipe(pipe_total, a, pipes[input_id+0.1], retflag);
                     if (retflag == 2) break;
                     break;
                 }
@@ -395,10 +395,10 @@ int main()
             {
                 cout << "Input station ID to edit: " << endl;
                 int input_id = intCheck();
-                if (stations.find(input_id) != stations.end())
+                if (stations.find(input_id+0.2) != stations.end())
                 {
                     int retflag;
-                    EditStation(station_total, a, stations[input_id], retflag);
+                    EditStation(station_total, a, stations[input_id+0.2], retflag);
                     if (retflag == 2) break;
                     break;
                 }
@@ -420,9 +420,9 @@ int main()
             {
                 cout << "Input pipe ID:" << endl;
                 int input_id = intCheck();
-                if (pipes.find(input_id) != pipes.end())
+                if (pipes.find(input_id+0.1) != pipes.end())
                 {
-                    pipes.erase(input_id);
+                    pipes.erase(input_id+0.1);
                     break;
                 }
                 else
@@ -443,9 +443,9 @@ int main()
             {
                 cout << "Input station ID:" << endl;
                 int input_id = intCheck();
-                if (stations.find(input_id) != stations.end())
+                if (stations.find(input_id+0.2) != stations.end())
                 {
-                    stations.erase(input_id);
+                    stations.erase(input_id+0.2);
                     break;
                 }
                 else
