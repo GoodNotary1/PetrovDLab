@@ -317,7 +317,7 @@ int main()
     while (1)
     {
         int a = 0;
-        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "0. Exit" << endl;
+        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "10. Search" << endl << "0. Exit" << endl;
         a = intCheck();
         switch (a)
         {
@@ -460,14 +460,90 @@ int main()
                 break;
             }
         }
-
         case 8:
+        {
             SaveFile(pipe_total, pipes, station_total, stations);
             break;
+        }
         case 9:
+        {
             int retflag;
             LoadFile(pipes, stations, retflag);
             if (retflag == 2) break;
+        }
+        case 10:
+        {
+            cout << "Select object type (1 - pipes, 2 - stations):" << endl;
+            a = intCheck(1, 2);
+            if (a == 1)
+            {
+                if (pipes.empty() == false)
+                {
+                    cout << "Input repair status to search:" << endl;
+                    bool repair_search = booleanCheck();
+                    for (auto kv : pipes)
+                    {
+                        if (pipes[kv.first].Repair == repair_search)
+                        PipeOutput(pipes[kv.first]);
+                        cout << endl;
+                    }
+                    break;
+                }
+                else
+                {
+                    cout << "There are no pipes." << endl;
+                    break;
+                }
+            }
+            else
+            {
+                if (stations.empty() == false)
+                {
+                    cout << "Input 1 to search by name. Input 2 to search by percent of working stations:" << endl;
+                    a = intCheck(1, 2);
+                    if (a == 1)
+                    {
+                        cout << "Input name:" << endl;
+                        string name_search = stringCheck();
+                        for (auto kv : stations)
+                        {
+                            if (stations[kv.first].station_name == name_search)
+                                StationOutput(stations[kv.first]);
+                            cout << endl;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        while (1)
+                        {
+                            cout << "Input lower boundary for percent:" << endl;
+                            int percent_search_low = intCheck(0, 100);
+                            cout << "Input higher boundary for percent:" << endl;
+                            int percent_search_high = intCheck(0, 100);
+                            if (percent_search_low <= percent_search_high)
+                            {
+                                for (auto kv : stations)
+                                {
+                                    float division_percent = (stations[kv.first].working_divisions / (float)stations[kv.first].total_divisions) * 100;
+                                    if ( division_percent >= percent_search_low && division_percent <= percent_search_high)
+                                        StationOutput(stations[kv.first]);
+                                    cout << endl;
+                                }
+                                break;
+                            }
+                            else
+                                cout << "Lower boundary must be lower or equal compared to the higher boundary." << endl;
+                        }
+                    }
+                }
+                else
+                {
+                    cout << "There are no stations." << endl;
+                    break;
+                }
+            }
+        }
         }
     }
 }
