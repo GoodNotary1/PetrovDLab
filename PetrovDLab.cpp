@@ -317,7 +317,7 @@ int main()
     while (1)
     {
         int a = 0;
-        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "10. Search" << endl << "0. Exit" << endl;
+        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "10. Search" << endl << "11. Batch editing" << endl << "0. Exit" << endl;
         a = intCheck();
         switch (a)
         {
@@ -540,6 +540,125 @@ int main()
                 else
                 {
                     cout << "There are no stations." << endl;
+                    break;
+                }
+            }
+        }
+        case 11:
+        {
+            vector<float> batch = {};
+            cout << "Input 1 to edit pipes or 2 to edit stations:" << endl;
+            a = intCheck(1, 2);
+            if (a == 1)
+            {
+                cout << "Input pipe IDs:" << endl;
+                while(1)
+                {
+                    int vect_buff = intCheck();
+                    if (pipes.find(vect_buff+0.1) != pipes.end())
+                    {
+                        batch.push_back(vect_buff+0.1);
+                    }
+                    else
+                    {
+                        cout << "ID not found" << endl;
+                    }
+                    cout << "Is the batch complete? For yes input 1, for no - 2:" << endl;
+                    a = intCheck(1, 2);
+                    if (a == 1)
+                        break;
+                }
+                if (batch.empty())
+                {
+                    cout << "Batch is empty." << endl;
+                    break;
+                }
+                cout << "Input 1 to edit length and 2 to edit repair status" << endl;
+                a = intCheck(1, 2);
+                if (a == 1)
+                {
+                    cout << "Input length:" << endl;
+                    float length_buff = floatCheck();
+                    for (int i = 0; i <= batch.size()-1; i++)
+                        pipes[batch[i]].l = length_buff;
+                    batch = {};
+                    break;
+                }
+                else
+                {
+                    cout << "Input repair status:" << endl;
+                    bool repair_buff = booleanCheck();
+                    for (int i = 0; i <= batch.size()-1; i++)
+                        pipes[batch[i]].Repair = repair_buff;
+                    batch = {};
+                    break;
+                }
+            }
+            else
+            {
+                cout << "Input station IDs:" << endl;
+                while (1)
+                {
+                    int vect_buff = intCheck();
+                    if (stations.find(vect_buff+0.2) != stations.end())
+                    {
+                        batch.push_back(vect_buff + 0.2);
+                    }
+                    else
+                    {
+                        cout << "ID not found" << endl;
+                    }
+                    cout << "Is the batch complete? For yes input 1, for no - 2:" << endl;
+                    a = intCheck(1, 2);
+                    if (a == 1)
+                        break;
+                }
+                if (batch.empty())
+                {
+                    cout << "Batch is empty." << endl;
+                    break;
+                }
+                cout << "Input 1 to edit name, 2 to edit divisions, 3 to edit efficiency:" << endl;
+                a = intCheck();
+                if (a == 1)
+                {
+                    cout << "Input name:" << endl;
+                    string name_buff = stringCheck();
+                    for (int i = 0; i <= batch.size()-1; i++)
+                        stations[batch[i]].station_name = name_buff;
+                    batch = {};
+                    break;
+                }
+                if (a == 2)
+                {
+                    while (1)
+                    {
+                        cout << "Input total stations:" << endl;
+                        int total_buff = intCheck();
+                        cout << "Input working stations:" << endl;
+                        int working_buff = intCheck();
+                        if (total_buff < working_buff)
+                            cout << "Input error. Can't be more working divisions than total divisions" << endl;
+                        else
+                        {
+                            for (int i = 0; i <= batch.size()-1; i++)
+                            {
+                                stations[batch[i]].total_divisions = total_buff;
+                                stations[batch[i]].working_divisions = working_buff;
+                            }
+                            break;
+                        }   
+                    }
+                    batch = {};
+                    break;
+                }
+                else
+                {
+                    cout << "Input efficiency:" << endl;
+                    int efficiency_buff = intCheck();
+                    for (int i = 0; i <= batch.size()-1; i++)
+                        stations[batch[i]].efficiency = efficiency_buff;
+                    batch = {};
                     break;
                 }
             }
