@@ -9,58 +9,10 @@
 #include <vector>
 
 using namespace std;
+int pipe_total;
+int station_total;
 
-int pipe_total = 0;
-int station_total = 0;
-unordered_map <float, Pipe> pipes = {};
-unordered_map <float, Station> stations = {};
-
-struct Pipe
-{
-    int id;
-    int d;
-    float l;
-    bool Repair;
-};
-
-struct Station
-{
-    int id;
-    string station_name;
-    int total_divisions;
-    int working_divisions;
-    int efficiency;
-};
-
-void PipeOutput(Pipe& p)
-{
-    cout << "Pipe ID:" << p.id << endl;
-    cout << "Pipe diameter:" << p.d << endl;
-    cout << "Pipe length:" << p.l << endl;
-    cout << "Pipe repair status:" << p.Repair << endl;
-}
-
-void StationOutput(Station& s)
-{
-    cout << "Station ID:" << s.id << endl;
-    cout << "Station name:" << s.station_name << endl;
-    cout << "Total divisions:" << s.total_divisions << endl;
-    cout << "Working divisions:" << s.working_divisions << endl;
-    cout << "Efficiency:" << s.efficiency << endl;
-}
-
-string stringCheck()
-{
-    while (1)
-    {
-        string str;
-        cin >> ws;
-        getline(cin, str);
-            return str;
-    }
-}
-
-int intCheck(int min=0, int max=INT_MAX)
+int intCheck(int min = 0, int max = INT_MAX)
 {
     while (1)
     {
@@ -79,7 +31,18 @@ int intCheck(int min=0, int max=INT_MAX)
     }
 }
 
-float floatCheck(float min=0, float max=FLT_MAX)
+string stringCheck()
+{
+    while (1)
+    {
+        string str;
+        cin >> ws;
+        getline(cin, str);
+        return str;
+    }
+}
+
+float floatCheck(float min = 0, float max = FLT_MAX)
 {
     while (1)
     {
@@ -117,39 +80,98 @@ bool booleanCheck()
     }
 }
 
-Pipe Create_pipe()
+class Pipe
 {
-    Pipe p = {};
-    p.id = pipe_total;
-    p.Repair = false;
-    cout << "Input pipe diameter: ";
-    p.d = intCheck();
-    cout << "Input pipe length: ";
-    p.l = floatCheck(0);
-    return p;
-}
+public:
+    int id;
+    int d;
+    float l;
+    bool Repair;
 
-Station Create_station()
-{
-    Station s = {};
-    s.id = station_total;
-    cout << "Input name: ";
-    s.station_name = stringCheck();
-    while (1)
+    void PipeOutput()
     {
-        cout << "Input total station divisions: ";
-        s.total_divisions = intCheck();
-        cout << "Input working divisions: ";
-        s.working_divisions = intCheck();
-        if (s.working_divisions <= s.total_divisions)
-            break;
-        else
-            cout << "Input error. Can't be more working divisions than total divisions" << endl;
+        cout << "Pipe ID:" << id << endl;
+        cout << "Pipe diameter:" << d << endl;
+        cout << "Pipe length:" << l << endl;
+        cout << "Pipe repair status:" << Repair << endl;
     }
-    cout << "Input station efficiency: ";
-    s.efficiency = intCheck(0, 100);
-    return s;
-}
+
+    void EditPipe(int& a)
+    {
+        {
+            cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back" << endl;
+            a = intCheck();
+            switch (a)
+            {
+            case 1:
+                cout << "Input diameter:" << endl;
+                d = intCheck();
+                break;
+            case 2:
+                cout << "Input length:" << endl;
+                l = floatCheck();
+                break;
+            case 3:
+                cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
+                Repair = booleanCheck();
+                break;
+            case 0:
+                break;
+            }
+        }
+    }
+};
+
+class Station
+{
+public:
+    int id;
+    string station_name;
+    int total_divisions;
+    int working_divisions;
+    int efficiency;
+
+    void StationOutput()
+    {
+        cout << "Station ID:" << id << endl;
+        cout << "Station name:" << station_name << endl;
+        cout << "Total divisions:" << total_divisions << endl;
+        cout << "Working divisions:" << working_divisions << endl;
+        cout << "Efficiency:" << efficiency << endl;
+    }
+
+    void EditStation(int& a)
+    {
+        {
+            cout << "Choose option:" << endl << endl << "0. Back" << endl << "1. Change name" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
+            a = intCheck();
+            switch (a)
+            {
+            case 0:
+                break;
+            case 1:
+                cout << "Input name:" << endl;
+                station_name = stringCheck();
+                break;
+            case 2:
+                cout << "Input efficiency:" << endl;
+                efficiency = intCheck(0, 100);
+                break;
+            case 3:
+                while (1)
+                {
+                    cout << "Input total station divisions: ";
+                    total_divisions = intCheck();
+                    cout << "Input working divisions: ";
+                    working_divisions = intCheck();
+                    if (working_divisions > total_divisions)
+                        cout << "Input error. Can't be more working divisions than total divisions" << endl;
+                    else break;
+                }
+            }
+        }
+    }
+};
 
 void LoadFile(unordered_map<float, Pipe>& pipes, unordered_map<float, Station>& stations, int& retflag)
 {
@@ -253,66 +275,45 @@ void SaveFile(int pipe_total, unordered_map<float, Pipe>& pipes, int station_tot
     }
 }
 
-void EditStation(int station_total, int& a, Station& s, int& retflag)
+Pipe Create_pipe()
 {
-    retflag = 1;
-    {
-            cout << "Choose option:" << endl << endl << "0. Back" << endl << "1. Change name" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
-            a = intCheck();
-            switch (a)
-            {
-            case 0:
-                break;
-            case 1:
-                cout << "Input name:" << endl;
-                s.station_name = stringCheck();
-                break;
-            case 2:
-                cout << "Input efficiency:" << endl;
-                s.efficiency = intCheck(0, 100);
-                break;
-            case 3:
-                while (1)
-                {
-                    cout << "Input total station divisions: ";
-                    s.total_divisions = intCheck();
-                    cout << "Input working divisions: ";
-                    s.working_divisions = intCheck();
-                    if (s.working_divisions > s.total_divisions)
-                        cout << "Input error. Can't be more working divisions than total divisions" << endl;
-                    else break;
-                }
-            }
-    }
+    Pipe p = {};
+    p.id = pipe_total;
+    p.Repair = false;
+    cout << "Input pipe diameter: ";
+    p.d = intCheck();
+    cout << "Input pipe length: ";
+    p.l = floatCheck(0);
+    return p;
 }
 
-void EditPipe(int pipe_total, int& a, Pipe& p, int& retflag)
+Station Create_station()
 {
-    retflag = 1;
+    Station s = {};
+    s.id = station_total;
+    cout << "Input name: ";
+    s.station_name = stringCheck();
+    while (1)
     {
-            cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back" << endl;
-            a = intCheck();
-            switch (a)
-            {
-            case 1:
-                cout << "Input diameter:" << endl;
-                p.d = intCheck();
-                break;
-            case 2:
-                cout << "Input length:" << endl;
-                p.l = floatCheck();
-                break;
-            case 3:
-                cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
-                p.Repair = booleanCheck();
-                break;
-            case 0:
-                break;
-            }
+        cout << "Input total station divisions: ";
+        s.total_divisions = intCheck();
+        cout << "Input working divisions: ";
+        s.working_divisions = intCheck();
+        if (s.working_divisions <= s.total_divisions)
+            break;
+        else
+            cout << "Input error. Can't be more working divisions than total divisions" << endl;
     }
+    cout << "Input station efficiency: ";
+    s.efficiency = intCheck(0, 100);
+    return s;
 }
+
+unordered_map <float, Pipe> pipes = {};
+unordered_map <float, Station> stations = {};
 
 int main()
+
 {
     while (1)
     {
@@ -348,7 +349,7 @@ int main()
                 for (auto kv : pipes)
                 {
                     cout << kv.first << endl;
-                    PipeOutput(pipes[kv.first]);
+                    pipes[kv.first].PipeOutput();
                     cout << endl;
                 }
             }
@@ -358,7 +359,7 @@ int main()
                 for (auto kv : stations)
                 {
                     cout << kv.first << endl;
-                    StationOutput(stations[kv.first]);
+                    stations[kv.first].StationOutput();
                     cout << endl;
                 }
             }
@@ -372,10 +373,7 @@ int main()
                 int input_id = intCheck();
                 if (pipes.find(input_id+0.1) != pipes.end())
                 {
-                    int retflag;
-                    EditPipe(pipe_total, a, pipes[input_id+0.1], retflag);
-                    if (retflag == 2) break;
-                    break;
+                    pipes[input_id + 0.1].EditPipe(a);
                 }
                 else
                 {
@@ -397,8 +395,8 @@ int main()
                 int input_id = intCheck();
                 if (stations.find(input_id+0.2) != stations.end())
                 {
-                    int retflag;
-                    EditStation(station_total, a, stations[input_id+0.2], retflag);
+                    int retflag = 1;
+                    stations[input_id + 0.2].EditStation(a);
                     if (retflag == 2) break;
                     break;
                 }
@@ -484,7 +482,7 @@ int main()
                     for (auto kv : pipes)
                     {
                         if (pipes[kv.first].Repair == repair_search)
-                        PipeOutput(pipes[kv.first]);
+                            pipes[kv.first].PipeOutput();
                         cout << endl;
                     }
                     break;
@@ -508,7 +506,7 @@ int main()
                         for (auto kv : stations)
                         {
                             if (stations[kv.first].station_name == name_search)
-                                StationOutput(stations[kv.first]);
+                                stations[kv.first].StationOutput();
                             cout << endl;
                         }
                         break;
@@ -527,7 +525,7 @@ int main()
                                 {
                                     float division_percent = (stations[kv.first].working_divisions / (float)stations[kv.first].total_divisions) * 100;
                                     if ( division_percent >= percent_search_low && division_percent <= percent_search_high)
-                                        StationOutput(stations[kv.first]);
+                                        stations[kv.first].StationOutput();
                                     cout << endl;
                                 }
                                 break;

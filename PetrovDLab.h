@@ -1,5 +1,5 @@
 #pragma once
 
-struct Pipe;
+class Pipe;
 
-struct Station;
+class Station;
