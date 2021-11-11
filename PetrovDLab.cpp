@@ -177,8 +177,10 @@ void LoadFile(unordered_map<float, Pipe>& pipes, unordered_map<float, Station>& 
 {
     retflag = 1;
     {
+        cout << "Input file name:" << endl;
+        string name = stringCheck();
         ifstream file;
-        file.open("data.txt", ios::in);
+        file.open(name, ios::in);
         if (file.good())
         {
             while (!file.eof())
@@ -235,14 +237,21 @@ void LoadFile(unordered_map<float, Pipe>& pipes, unordered_map<float, Station>& 
             cout << "Loading complete" << endl;
             { retflag = 2; return; };
         }
+        else
+        {
+            cout << "File not found" << endl;
+            { retflag = 2; return; };
+        }
     }
 }
 
 void SaveFile(int pipe_total, unordered_map<float, Pipe>& pipes, int station_total, unordered_map<float, Station>& stations)
 {
     {
+        cout << "Input file name:" << endl;
+        string name = stringCheck();
         ofstream file;
-        file.open("data.txt", ios_base::out);
+        file.open(name, ios_base::out);
         if (file.good())
         {
             if (pipes.empty() == false)
