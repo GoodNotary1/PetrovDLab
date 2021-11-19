@@ -82,8 +82,10 @@ bool booleanCheck()
 
 class Pipe
 {
-public:
+
+private:
     int id;
+public:
     int d;
     float l;
     bool Repair;
@@ -120,12 +122,22 @@ public:
             }
         }
     }
+
+    int give_id()
+    {
+        return id;
+    }
+
+    friend Pipe Create_pipe();
+
+    friend void LoadFile(unordered_map<float, Pipe>& pipes, unordered_map<float, Station>& stations, int& retflag);
 };
 
 class Station
 {
-public:
+private:
     int id;
+public:
     string station_name;
     int total_divisions;
     int working_divisions;
@@ -171,6 +183,15 @@ public:
             }
         }
     }
+
+    int give_id()
+    {
+        return id;
+    }
+
+    friend Station Create_station();
+
+    friend void LoadFile(unordered_map<float, Pipe>& pipes, unordered_map<float, Station>& stations, int& retflag);
 };
 
 void LoadFile(unordered_map<float, Pipe>& pipes, unordered_map<float, Station>& stations, int& retflag)
@@ -259,7 +280,7 @@ void SaveFile(int pipe_total, unordered_map<float, Pipe>& pipes, int station_tot
                 file << "pipeline_data" << endl << pipes.size()<< endl << pipe_total << endl;
                 for (auto kv : pipes)
                 {
-                    file << kv.first << endl << pipes[kv.first].id << endl << pipes[kv.first].d << endl << pipes[kv.first].l << endl << pipes[kv.first].Repair << endl;
+                    file << kv.first << endl << pipes[kv.first].give_id() << endl << pipes[kv.first].d << endl << pipes[kv.first].l << endl << pipes[kv.first].Repair << endl;
                 }
             }
             else
@@ -271,7 +292,7 @@ void SaveFile(int pipe_total, unordered_map<float, Pipe>& pipes, int station_tot
                 file << "station_data" << endl << stations.size() << endl << station_total << endl;
                 for (auto kv : stations)
                 {
-                    file << kv.first << endl << stations[kv.first].id << endl << stations[kv.first].station_name << endl << stations[kv.first].total_divisions << endl << stations[kv.first].working_divisions << endl << stations[kv.first].efficiency << endl;
+                    file << kv.first << endl << stations[kv.first].give_id() << endl << stations[kv.first].station_name << endl << stations[kv.first].total_divisions << endl << stations[kv.first].working_divisions << endl << stations[kv.first].efficiency << endl;
                 }
             }
             else
