@@ -339,12 +339,36 @@ Station Create_station()
     return s;
 }
 
-unordered_map <float, Pipe> pipes = {};
-unordered_map <float, Station> stations = {};
+void SearchBatchEdit(vector<float>& batch, unordered_map<float, Pipe>& pipes)
+{
+    for (int i = 0; i <= batch.size() - 1; i++)
+    {
+        pipes[batch[i]].Repair = !pipes[batch[i]].Repair;
+    }
+}
+
+void PipesFilter(unordered_map<float, Pipe>& pipes, bool Status)
+{
+    vector<float> result = {};
+    for (auto kv : pipes)
+    {
+        if (pipes[kv.first].Repair == Status)
+        {
+            pipes[kv.first].PipeOutput();
+            result.push_back(kv.first);
+        }
+        cout << endl;
+    }
+    cout << "Flip repair status? 1 - yes, 2 - no." << endl;
+    int a = intCheck(1, 2);
+    if (a == 1)
+        SearchBatchEdit(result, pipes);
+}
 
 int main()
-
 {
+    unordered_map <float, Pipe> pipes = {};
+    unordered_map <float, Station> stations = {};
     while (1)
     {
         int a = 0;
@@ -509,12 +533,7 @@ int main()
                 {
                     cout << "Input repair status to search:" << endl;
                     bool repair_search = booleanCheck();
-                    for (auto kv : pipes)
-                    {
-                        if (pipes[kv.first].Repair == repair_search)
-                            pipes[kv.first].PipeOutput();
-                        cout << endl;
-                    }
+                    PipesFilter(pipes, repair_search);
                     break;
                 }
                 else
