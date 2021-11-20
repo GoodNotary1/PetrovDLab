@@ -339,7 +339,7 @@ Station Create_station()
     return s;
 }
 
-void SearchBatchEdit(vector<float>& batch, unordered_map<float, Pipe>& pipes)
+void PipeSearchBatchEdit(vector<float>& batch, unordered_map<float, Pipe>& pipes)
 {
     for (int i = 0; i <= batch.size() - 1; i++)
     {
@@ -362,7 +362,76 @@ void PipesFilter(unordered_map<float, Pipe>& pipes, bool Status)
     cout << "Flip repair status? 1 - yes, 2 - no." << endl;
     int a = intCheck(1, 2);
     if (a == 1)
-        SearchBatchEdit(result, pipes);
+        PipeSearchBatchEdit(result, pipes);
+}
+
+void StationSearchBatchEdit(vector<float>& batch, unordered_map<float, Station>& stations, int indicator)
+{
+    if (indicator == 1)
+    {
+        cout << "Input name:" << endl;
+        string name_buff = stringCheck();
+        for (int i = 0; i <= batch.size() - 1; i++)
+            stations[batch[i]].station_name = name_buff;
+    }
+    if (indicator == 2)
+    {
+        while (1)
+        {
+            cout << "Input total stations:" << endl;
+            int total_buff = intCheck();
+            cout << "Input working stations:" << endl;
+            int working_buff = intCheck();
+            if (total_buff < working_buff)
+                cout << "Input error. Can't be more working divisions than total divisions" << endl;
+            else
+            {
+                for (int i = 0; i <= batch.size() - 1; i++)
+                {
+                    stations[batch[i]].total_divisions = total_buff;
+                    stations[batch[i]].working_divisions = working_buff;
+                }
+                break;
+            }
+        }
+    }
+}
+
+void StationsFilter(unordered_map<float, Station>& stations, string name, int percent_low, int percent_high)
+{
+    int parameter_indicator = 0;
+    vector<float> result = {};
+    if (name != "")
+    {
+        for (auto kv : stations)
+        {
+            if (stations[kv.first].station_name == name)
+            {
+                stations[kv.first].StationOutput();
+                result.push_back(kv.first);
+            }
+            cout << endl;
+            parameter_indicator = 1;
+        }
+    }
+    else
+    {
+        for (auto kv : stations)
+        {
+            float division_percent = (stations[kv.first].working_divisions / (float)stations[kv.first].total_divisions) * 100;
+            if (division_percent >= percent_low && division_percent <= percent_high)
+            {
+                stations[kv.first].StationOutput();
+                result.push_back(kv.first);
+            }
+            cout << endl;
+            parameter_indicator = 2;
+        }
+    }
+    cout << "Change value? 1 - yes, 2 - no." << endl;
+    int a = intCheck(1, 2);
+    if (a == 1)
+        StationSearchBatchEdit(result, stations, parameter_indicator);
 }
 
 int main()
@@ -546,18 +615,16 @@ int main()
             {
                 if (stations.empty() == false)
                 {
+                    string name_search = "";
+                    int percent_search_low = 0;
+                    int percent_search_high = 0;
                     cout << "Input 1 to search by name. Input 2 to search by percent of working stations:" << endl;
                     a = intCheck(1, 2);
                     if (a == 1)
                     {
                         cout << "Input name:" << endl;
                         string name_search = stringCheck();
-                        for (auto kv : stations)
-                        {
-                            if (stations[kv.first].station_name == name_search)
-                                stations[kv.first].StationOutput();
-                            cout << endl;
-                        }
+                        StationsFilter(stations, name_search, percent_search_low, percent_search_high);
                         break;
                     }
                     else
@@ -570,18 +637,13 @@ int main()
                             int percent_search_high = intCheck(0, 100);
                             if (percent_search_low <= percent_search_high)
                             {
-                                for (auto kv : stations)
-                                {
-                                    float division_percent = (stations[kv.first].working_divisions / (float)stations[kv.first].total_divisions) * 100;
-                                    if ( division_percent >= percent_search_low && division_percent <= percent_search_high)
-                                        stations[kv.first].StationOutput();
-                                    cout << endl;
-                                }
+                                StationsFilter(stations, name_search, percent_search_low, percent_search_high);
                                 break;
                             }
                             else
                                 cout << "Lower boundary must be lower or equal compared to the higher boundary." << endl;
                         }
+                        break;
                     }
                 }
                 else
