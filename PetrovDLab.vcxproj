@@ -139,10 +139,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Checks.cpp" />
     <ClCompile Include="PetrovDLab.cpp" />
+    <ClCompile Include="Pipe.cpp" />
+    <ClCompile Include="Station.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Checks.h" />
     <ClInclude Include="PetrovDLab.h" />
+    <ClInclude Include="Pipe.h" />
+    <ClInclude Include="Station.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PetrovDLab.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
