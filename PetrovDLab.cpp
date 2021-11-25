@@ -129,28 +129,6 @@ void SaveFile(int pipe_total, unordered_map<int, Pipe>& pipes, int station_total
     }
 }
 
-void PipeSearchBatchEdit(vector<int>& batch, unordered_map<int, Pipe>& pipes)
-{
-    for (int i = 0; i <= batch.size() - 1; i++)
-    {
-        pipes[batch[i]].Repair = !pipes[batch[i]].Repair;
-    }
-}
-
-void PipesFilter(unordered_map<int, Pipe>& pipes, bool Status)
-{
-    vector<int> result = {};
-    for (auto kv : pipes)
-    {
-        if (pipes[kv.first].Repair == Status)
-            result.push_back(kv.first);
-    }
-    cout << "Flip repair status? 1 - yes, 2 - no." << endl;
-    int a = intCheck(1, 2);
-    if (a == 1)
-        PipeSearchBatchEdit(result, pipes);
-}
-
 void PipeSearchEdit(unordered_map<int, Pipe>& pipes, bool Status, std::function<vector<int> (unordered_map<int, Pipe>& pipes, bool Status)> result)
 {
     auto batch = result(pipes, Status);
@@ -207,45 +185,108 @@ vector<int> PipeSearch(unordered_map<int, Pipe>& pipes, bool Status)
     return result;
 }
 
-
-
-void StationSearchBatchEdit(vector<int>& batch, unordered_map<int, Station>& stations, int indicator)
+void StationSearchBatchEdit(unordered_map<int, Station>& stations, string name, int percent_low, int percent_high, bool parameter_indicator, std::function<vector<int> (unordered_map<int, Station>& stations, string name, int percent_low, int percent_high, bool parameter_indicator)> result)
 {
-    if (indicator == 1)
+    auto batch = result(stations, name, percent_low, percent_high, parameter_indicator);
+    for (int i = 0; i < batch.size(); i++)
+        cout << batch.at(i) << " ";
+    cout << endl;
+    if (parameter_indicator == true)
     {
-        cout << "Input name:" << endl;
-        string name_buff = stringCheck();
-        for (int i = 0; i <= batch.size() - 1; i++)
-            stations[batch[i]].station_name = name_buff;
-    }
-    if (indicator == 2)
-    {
-        while (1)
+        cout << "Change name? 1 - yes, 2 - no" << endl;
+        int a = intCheck(1, 2);
+        if (a == 1)
         {
-            cout << "Input total stations:" << endl;
-            int total_buff = intCheck();
-            cout << "Input working stations:" << endl;
-            int working_buff = intCheck();
-            if (total_buff < working_buff)
-                cout << "Input error. Can't be more working divisions than total divisions" << endl;
-            else
+            vector<bool> selector = {};
+            for (int i = 0; i < batch.size(); i++)
+                selector.push_back(true);
+            while (1)
             {
-                for (int i = 0; i <= batch.size() - 1; i++)
+                cout << "Currently selected stations:" << endl;
+                for (int i = 0; i < batch.size(); i++)
+                    if (selector[i] == true)
+                        cout << batch.at(i) << "(+) ";
+                    else
+                        cout << batch.at(i) << "(-) ";
+                cout << endl;
+                cout << "Input 1 to toggle selection, input 2 to finish selection" << endl;
+                a = intCheck(1, 2);
+                if (a == 1)
                 {
-                    stations[batch[i]].total_divisions = total_buff;
-                    stations[batch[i]].working_divisions = working_buff;
+                    cout << "Input number of station in the sequence:" << endl;
+                    int toggler = intCheck(1, selector.size());
+                    selector[toggler - 1] = !selector[toggler - 1];
                 }
-                break;
+                if (a == 2)
+                {
+                    break;
+                }
             }
+            cout << "Input name:" << endl;
+            auto name_buff = stringCheck();
+            for (int i = 0; i < batch.size(); i++)
+                if (selector[i] == true)
+                    stations[batch[i]].station_name = name_buff;
+        }
+    }
+    if (parameter_indicator == false)
+    {
+         cout << "Change division number? 1 - yes, 2 - no" << endl;
+        int a = intCheck(1, 2);
+        if (a == 1)
+        {
+            vector<bool> selector = {};
+            for (int i = 0; i < batch.size(); i++)
+                selector.push_back(true);
+            while (1)
+            {
+                cout << "Currently selected stations:" << endl;
+                for (int i = 0; i < batch.size(); i++)
+                    if (selector[i] == true)
+                        cout << batch.at(i) << "(+) ";
+                    else
+                        cout << batch.at(i) << "(-) ";
+                cout << endl;
+                cout << "Input 1 to toggle selection, input 2 to finish selection" << endl;
+                a = intCheck(1, 2);
+                if (a == 1)
+                {
+                    cout << "Input number of station in the sequence:" << endl;
+                    int toggler = intCheck(1, selector.size());
+                    selector[toggler - 1] = !selector[toggler - 1];
+                }
+                if (a == 2)
+                {
+                    break;
+                }
+            }
+            while (1)
+            {
+                cout << "Input total station divisions: ";
+                int total_buff = intCheck();
+                cout << "Input working divisions: ";
+                int working_buff = intCheck();
+                if (working_buff > total_buff)
+                    cout << "Input error. Can't be more working divisions than total divisions" << endl;
+                else
+                {
+                    for (int i = 0; i < batch.size(); i++)
+                        if (selector[i] == true)
+                        {
+                            stations[batch[i]].total_divisions = total_buff;
+                            stations[batch[i]].working_divisions = working_buff;
+                        }
+                    break;
+                }
+            };
         }
     }
 }
 
-void StationsFilter(unordered_map<int, Station>& stations, string name, int percent_low, int percent_high)
+vector<int> StationsFilter(unordered_map<int, Station>& stations, string name, int percent_low, int percent_high, bool parameter_indicator)
 {
-    int parameter_indicator = 0;
     vector<int> result = {};
-    if (name != "")
+    if (parameter_indicator == true)
     {
         for (auto kv : stations)
         {
@@ -255,7 +296,6 @@ void StationsFilter(unordered_map<int, Station>& stations, string name, int perc
                 result.push_back(kv.first);
             }
             cout << endl;
-            parameter_indicator = 1;
         }
     }
     else
@@ -269,13 +309,9 @@ void StationsFilter(unordered_map<int, Station>& stations, string name, int perc
                 result.push_back(kv.first);
             }
             cout << endl;
-            parameter_indicator = 2;
         }
     }
-    cout << "Change value? 1 - yes, 2 - no." << endl;
-    int a = intCheck(1, 2);
-    if (a == 1)
-        StationSearchBatchEdit(result, stations, parameter_indicator);
+    return result;
 }
 
 int main()
@@ -467,22 +503,24 @@ int main()
                     a = intCheck(1, 2);
                     if (a == 1)
                     {
+                        bool parameter_indicator = true;
                         cout << "Input name:" << endl;
                         string name_search = stringCheck();
-                        StationsFilter(stations, name_search, percent_search_low, percent_search_high);
+                        StationSearchBatchEdit(stations, name_search, percent_search_low, percent_search_high, parameter_indicator, StationsFilter);
                         break;
                     }
                     else
                     {
                         while (1)
                         {
+                            bool parameter_indicator = false;
                             cout << "Input lower boundary for percent:" << endl;
                             int percent_search_low = intCheck(0, 100);
                             cout << "Input higher boundary for percent:" << endl;
                             int percent_search_high = intCheck(0, 100);
                             if (percent_search_low <= percent_search_high)
                             {
-                                StationsFilter(stations, name_search, percent_search_low, percent_search_high);
+                                StationSearchBatchEdit(stations, name_search, percent_search_low, percent_search_high, parameter_indicator, StationsFilter);
                                 break;
                             }
                             else
