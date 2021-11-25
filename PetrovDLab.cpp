@@ -10,6 +10,7 @@
 #include "Pipe.h"
 #include "Checks.h"
 #include "Station.h"
+#include <functional>
 
 using namespace std;
 
@@ -142,17 +143,71 @@ void PipesFilter(unordered_map<int, Pipe>& pipes, bool Status)
     for (auto kv : pipes)
     {
         if (pipes[kv.first].Repair == Status)
-        {
-            pipes[kv.first].PipeOutput();
             result.push_back(kv.first);
-        }
-        cout << endl;
     }
     cout << "Flip repair status? 1 - yes, 2 - no." << endl;
     int a = intCheck(1, 2);
     if (a == 1)
         PipeSearchBatchEdit(result, pipes);
 }
+
+void PipeSearchEdit(unordered_map<int, Pipe>& pipes, bool Status, std::function<vector<int> (unordered_map<int, Pipe>& pipes, bool Status)> result)
+{
+    auto batch = result(pipes, Status);
+    for (int i = 0; i < batch.size(); i++)
+        cout << batch.at(i) << " ";
+    cout << endl;
+    cout << "Flip repair status? 1 - yes, 2 - no" << endl;
+    int a = intCheck(1, 2);
+    if (a == 1)
+    {
+        vector<bool> selector = {};
+        for (int i = 0; i < batch.size(); i++)
+            selector.push_back(true);
+        while (1)
+        {
+            cout << "Currently selected pipes:" << endl;
+            for (int i = 0; i < batch.size(); i++)
+                if (selector[i] == true)
+                    cout << batch.at(i) << "(+) ";
+                else
+                    cout << batch.at(i) << "(-) ";
+            cout << endl;
+            cout << "Input 1 to toggle selection, input 2 to finish selection" << endl;
+            a = intCheck(1, 2);
+            if (a == 1)
+            {
+                cout << "Input number of pipe in the sequence:" << endl;
+                int toggler = intCheck(1, selector.size());
+                selector[toggler-1] = !selector[toggler-1];
+            }
+            if (a == 2)
+            {
+                break;
+            }
+        }
+        for (int i = 0; i < batch.size(); i++)
+            if (selector[i] == true)
+                pipes[batch[i]].Repair = !pipes[batch[i]].Repair;
+    }
+}
+
+vector<int> PipeSearch(unordered_map<int, Pipe>& pipes, bool Status)
+{
+    vector<int> result = {};
+    for (auto kv : pipes)
+    {
+        if (pipes[kv.first].Repair == Status)
+        {
+            pipes[kv.first].PipeOutput();
+            result.push_back(kv.first);
+        }
+        cout << endl;
+    }
+    return result;
+}
+
+
 
 void StationSearchBatchEdit(vector<int>& batch, unordered_map<int, Station>& stations, int indicator)
 {
@@ -392,7 +447,7 @@ int main()
                 {
                     cout << "Input repair status to search:" << endl;
                     bool repair_search = booleanCheck();
-                    PipesFilter(pipes, repair_search);
+                    PipeSearchEdit(pipes, repair_search, PipeSearch);
                     break;
                 }
                 else
