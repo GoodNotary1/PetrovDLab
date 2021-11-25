@@ -51,7 +51,6 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
                         pipes[dynam_key].l = stof(value);
                         getline(file, value);
                         pipes[dynam_key].Repair = value == "1";
-                        Pipe::NextID--;
                     }
                 }
                 if (str == "station_data")
@@ -75,7 +74,6 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
                         stations[dynam_key].working_divisions = stoi(value);
                         getline(file, value);
                         stations[dynam_key].efficiency = stoi(value);
-                        Station::NextID--;
                     }
                 }
             }
@@ -335,6 +333,7 @@ int main()
         {
             Pipe Pipe;
             pipes.emplace(Pipe.give_id(), Pipe.Create_pipe(Pipe));
+            Pipe::NextID++;
             cout << "Pipe created" << endl;
             break;
         }
@@ -342,6 +341,7 @@ int main()
         {
             Station Station;
             stations.emplace(Station.give_id(), Station.Create_station(Station));
+            Station::NextID++;
             cout << "Station created" << endl;
             break;
         }

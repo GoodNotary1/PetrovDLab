@@ -52,7 +52,7 @@ int Pipe::NextID = 0;
         return in;
     }
 
-    Pipe::Pipe(void):id(Pipe::NextID++)
+    Pipe::Pipe(void):id(Pipe::NextID)
     {
 
     }

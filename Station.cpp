@@ -60,7 +60,7 @@ int Station::NextID = 0;
         return in;
     }
 
-    Station::Station(void):id(Station::NextID++)
+    Station::Station(void):id(Station::NextID)
     {
 
     }
