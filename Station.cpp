@@ -51,3 +51,36 @@ int Station::NextID = 0;
     {
         return id;
     }
+
+    std::istream& operator >> (std::istream& in, Station& Station)
+    {
+        string value;
+        getline(in, value);
+        Station.id = stoi(value);
+        return in;
+    }
+
+    Station::Station(void):id(Station::NextID++)
+    {
+
+    }
+
+    Station& Station::Create_station(Station& s)
+    {
+        cout << "Input name: ";
+        s.station_name = stringCheck();
+        while (1)
+        {
+            cout << "Input total station divisions: ";
+            s.total_divisions = intCheck();
+            cout << "Input working divisions: ";
+            s.working_divisions = intCheck();
+            if (s.working_divisions <= s.total_divisions)
+                break;
+            else
+                cout << "Input error. Can't be more working divisions than total divisions" << endl;
+        }
+        cout << "Input station efficiency: ";
+        s.efficiency = intCheck(0, 100);
+        return s;
+    }

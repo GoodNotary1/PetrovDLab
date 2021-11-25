@@ -4,8 +4,9 @@
 
 class Station
 {
-public:
+private:
     int id;
+public:
     static int NextID;
     std::string station_name;
     int total_divisions;
@@ -17,4 +18,10 @@ public:
     void EditStation(int& a);
 
     int give_id();
+
+    friend std::istream& operator >> (std::istream& in, Station& Station);
+
+    Station();
+
+    Station& Create_station(Station& s);
 };

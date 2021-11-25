@@ -39,7 +39,30 @@ int Pipe::NextID = 0;
         }
     }
 
-    int Pipe:: give_id()
+    int Pipe::give_id()
     {
         return id;
+    }
+
+    std::istream& operator >> (std::istream& in, Pipe& Pipe)
+    {
+        string value;
+        getline(in, value);
+        Pipe.id = stoi(value);
+        return in;
+    }
+
+    Pipe::Pipe(void):id(Pipe::NextID++)
+    {
+
+    }
+
+    Pipe& Pipe::Create_pipe(Pipe& p)
+    {
+        p.Repair = false;
+        cout << "Input pipe diameter: ";
+        p.d = intCheck();
+        cout << "Input pipe length: ";
+        p.l = floatCheck(0);
+        return p;
     }

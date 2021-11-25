@@ -4,8 +4,9 @@
 
 class Pipe
 {
-public:
+private:
     int id;
+public:
     static int NextID;
     int d;
     float l;
@@ -16,4 +17,10 @@ public:
     void EditPipe(int& a);
 
     int give_id();
+
+    friend std::istream& operator >> (std::istream& in, Pipe& Pipe);
+
+    Pipe();
+
+    Pipe& Create_pipe(Pipe& p);
 };
