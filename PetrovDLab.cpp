@@ -51,6 +51,10 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
                         pipes[dynam_key].l = stof(value);
                         getline(file, value);
                         pipes[dynam_key].Repair = value == "1";
+                        getline(file, value);
+                        pipes[dynam_key].start = stoi(value);
+                        getline(file, value);
+                        pipes[dynam_key].end = stoi(value);
                     }
                 }
                 if (str == "station_data")
@@ -82,8 +86,7 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
         }
         else
         {
-            cout << "File not found" << endl;
-            { retflag = 2; return; };
+            cout << "File not found" << endl;;
         }
     }
 }
@@ -102,7 +105,7 @@ void SaveFile(int pipe_total, unordered_map<int, Pipe>& pipes, int station_total
                 file << "pipeline_data" << endl << pipes.size()<< endl << pipe_total << endl;
                 for (auto kv : pipes)
                 {
-                    file << kv.first << endl << pipes[kv.first].give_id() << endl << pipes[kv.first].d << endl << pipes[kv.first].l << endl << pipes[kv.first].Repair << endl;
+                    file << kv.first << endl << pipes[kv.first].give_id() << endl << pipes[kv.first].d << endl << pipes[kv.first].l << endl << pipes[kv.first].Repair << endl << pipes[kv.first].start << endl << pipes[kv.first].end << endl;
                 }
             }
             else
@@ -127,45 +130,32 @@ void SaveFile(int pipe_total, unordered_map<int, Pipe>& pipes, int station_total
     }
 }
 
-void PipeSearchEdit(unordered_map<int, Pipe>& pipes, bool Status, std::function<vector<int> (unordered_map<int, Pipe>& pipes, bool Status)> result)
+void PipeSearchEdit(unordered_map<int, Pipe>& pipes, bool Status, std::function<vector<int>(unordered_map<int, Pipe>& pipes, bool Status)> result)
 {
     auto batch = result(pipes, Status);
-    for (int i = 0; i < batch.size(); i++)
-        cout << batch.at(i) << " ";
+    for (int id : batch)
+        cout << id << " ";
     cout << endl;
     cout << "Flip repair status? 1 - yes, 2 - no" << endl;
-    int a = intCheck(1, 2);
-    if (a == 1)
+    if (intCheck(1, 2) == 2)
+        return;
+
+    vector<bool> selector(batch.size(), true);
+
+    cout << "Currently selected pipes:" << endl;
+    for (int i = 0; i < batch.size(); i++)
+        cout << i << "(" << batch[i] << ")" << (selector[i] ? "(+) " : "(-) ");
+    cout << endl;
+    cout << "Input index to toggle selection, input 0 to finish selection" << endl;
+    while (int index = intCheck(0, selector.size()))
     {
-        vector<bool> selector = {};
+        selector[index - 1] = !selector[index - 1];
         for (int i = 0; i < batch.size(); i++)
-            selector.push_back(true);
-        while (1)
-        {
-            cout << "Currently selected pipes:" << endl;
-            for (int i = 0; i < batch.size(); i++)
-                if (selector[i] == true)
-                    cout << batch.at(i) << "(+) ";
-                else
-                    cout << batch.at(i) << "(-) ";
-            cout << endl;
-            cout << "Input 1 to toggle selection, input 2 to finish selection" << endl;
-            a = intCheck(1, 2);
-            if (a == 1)
-            {
-                cout << "Input number of pipe in the sequence:" << endl;
-                int toggler = intCheck(1, selector.size());
-                selector[toggler-1] = !selector[toggler-1];
-            }
-            if (a == 2)
-            {
-                break;
-            }
-        }
-        for (int i = 0; i < batch.size(); i++)
-            if (selector[i] == true)
-                pipes[batch[i]].Repair = !pipes[batch[i]].Repair;
+            cout << i << "(" << batch[i] << ")" << (selector[i] ? "(+) " : "(-) ");
     }
+    for (int i = 0; i < batch.size(); i++)
+        if (selector[i] == true)
+            pipes[batch[i]].Repair = !pipes[batch[i]].Repair;
 }
 
 vector<int> PipeSearch(unordered_map<int, Pipe>& pipes, bool Status)
@@ -312,6 +302,46 @@ vector<int> StationsFilter(unordered_map<int, Station>& stations, string name, i
     return result;
 }
 
+void Connect(Pipe& p, unordered_map<int, Station>& stations)
+{
+    if (p.start == -1 and p.end == -1)
+    {
+        while (1)
+        {
+            cout << "Input id of starting station:" << endl;
+            int start_buff = intCheck();
+            cout << "Input id of ending station:" << endl;
+            int end_buff = intCheck();
+            if (stations.find(start_buff) != stations.end() and stations.find(end_buff) != stations.end() and start_buff != end_buff)
+            {
+                p.start = start_buff;
+                p.end = end_buff;
+                break;
+            }
+            else
+            {
+                cout << "Error. Input IDs of existing stations. Start and end can't be the same station." << endl;
+                break;
+            }
+        }
+    }
+    else
+    {
+        cout << "Pipe is already connected. Disconnect the pipe to proceed." << endl;
+    }
+}
+
+void Disconnect(Pipe& p)
+{
+    if (p.start == -1 and p.end == -1)
+        cout << "Pipe not connected." << endl;
+    else
+    {
+        p.start = -1;
+        p.end = -1;
+    }
+}
+
 int main()
 {
 
@@ -320,7 +350,7 @@ int main()
     while (1)
     {
         int a = 0;
-        cout << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "10. Search" << endl << "11. Batch editing" << endl << "0. Exit" << endl;
+        cout << endl << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "10. Search" << endl << "11. Batch editing" << endl << "12. Connect pipe" << endl << "13. Disconnect pipe" << endl << "0. Exit" << endl;
         a = intCheck();
         switch (a)
         {
@@ -424,12 +454,20 @@ int main()
                 int input_id = intCheck();
                 if (pipes.find(input_id) != pipes.end())
                 {
-                    pipes.erase(input_id);
-                    break;
+                    if (pipes[input_id].start == -1 and pipes[input_id].end == -1)
+                    {
+                        pipes.erase(input_id);
+                        break;
+                    }
+                    else
+                    {
+                        cout << "Pipe is connected. Disconnect pipe." << endl;
+                        break;
+                    }
                 }
                 else
                 {
-                    cout << "No matching ID found";
+                    cout << "No matching ID found" << endl;
                     break;
                 }
             }
@@ -447,8 +485,22 @@ int main()
                 int input_id = intCheck();
                 if (stations.find(input_id) != stations.end())
                 {
-                    stations.erase(input_id);
-                    break;
+                    bool check = false;
+                    for (auto kv : pipes)
+                    {
+                        if (pipes[kv.first].start == stations[input_id].give_id() or pipes[kv.first].end == stations[input_id].give_id())
+                            check = true;
+                    }
+                    if (check == false)
+                    {
+                        stations.erase(input_id);
+                        break;
+                    }
+                    else
+                    {
+                        cout << "Station is connected. Disconnect all pipes from this station." << endl;
+                        break;
+                    }
                 }
                 else
                 {
@@ -655,11 +707,26 @@ int main()
                 }
             }
         }
+        case 12:
+        {
+            cout << "Input pipe id:" << endl;
+            int id_buff = intCheck();
+            if (pipes.find(id_buff) != pipes.end())
+                Connect(pipes[id_buff], stations);
+            else cout << "No such pipe found." << endl;
+            break;
+        }
+        case 13:
+        {
+            cout << "Input pipe id:" << endl;
+            int id_buff = intCheck();
+            if (pipes.find(id_buff) != pipes.end())
+                if (pipes[id_buff].start == -1 and pipes[id_buff].end == -1)
+                    Disconnect(pipes[id_buff]);
+                else cout << "Pipe is connected. Disconnect pipe first." << endl;
+            else cout << "No such pipe found." << endl;
+            break;
+        }
         }
     }
 }
-
-
-
-
-

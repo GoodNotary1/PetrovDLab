@@ -1,6 +1,8 @@
 #include "Pipe.h"
 #include "Checks.h"
 #include <iostream>
+#include "Station.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -12,6 +14,13 @@ int Pipe::NextID = 0;
         cout << "Pipe diameter:" << d << endl;
         cout << "Pipe length:" << l << endl;
         cout << "Pipe repair status:" << Repair << endl;
+        if (start == -1 and end == -1)
+            cout << "Pipe unconnected" << endl;
+        else
+        {
+            cout << "Pipe start:" << start << endl;
+            cout << "Pipe end:" << end << endl;
+        }
     }
 
     void Pipe::EditPipe(int& a)
@@ -54,11 +63,13 @@ int Pipe::NextID = 0;
 
     Pipe::Pipe(void):id(Pipe::NextID)
     {
-
+        
     }
 
     Pipe& Pipe::Create_pipe(Pipe& p)
     {
+        p.start = -1;
+        p.end = -1;
         p.Repair = false;
         cout << "Input pipe diameter: ";
         p.d = intCheck();

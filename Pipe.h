@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "Station.h"
 
 class Pipe
 {
@@ -11,6 +12,8 @@ public:
     int d;
     float l;
     bool Repair;
+    int start;
+    int end;
 
     void PipeOutput();
 
