@@ -15,15 +15,13 @@ public:
     int start;
     int end;
 
-    void PipeOutput();
-
     void EditPipe(int& a);
 
     int give_id();
 
-    friend std::istream& operator >> (std::istream& in, Pipe& Pipe);
+    friend std::istream& operator >> (std::istream& in, Pipe& pipe);
+
+    friend std::ostream& operator << (std::ostream& out, const Pipe& pipe);
 
     Pipe();
-
-    Pipe& Create_pipe(Pipe& p);
 };

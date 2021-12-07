@@ -6,16 +6,16 @@ using namespace std;
 
 int Station::NextID = 0;
 
-    void Station::StationOutput()
-    {
-        cout << "Station ID:" << id << endl;
-        cout << "Station name:" << station_name << endl;
-        cout << "Total divisions:" << total_divisions << endl;
-        cout << "Working divisions:" << working_divisions << endl;
-        cout << "Efficiency:" << efficiency << endl;
-    }
+void Station::StationOutput()
+{
+    cout << "Station ID:" << id << endl;
+    cout << "Station name:" << station_name << endl;
+    cout << "Total divisions:" << total_divisions << endl;
+    cout << "Working divisions:" << working_divisions << endl;
+    cout << "Efficiency:" << efficiency << endl;
+}
 
-    void Station::EditStation(int& a)
+    /*void Station::EditStation(int& a)
     {
         {
             cout << "Choose option:" << endl << endl << "0. Back" << endl << "1. Change name" << endl << "2. Change efficiency" << endl << "3. Change stations" << endl;
@@ -45,42 +45,63 @@ int Station::NextID = 0;
                 }
             }
         }
-    }
+    }*/
 
-    int Station::give_id()
-    {
-        return id;
-    }
+void Station::EditStation(string& name)
+{
+    station_name = name;
+}
 
-    std::istream& operator >> (std::istream& in, Station& Station)
-    {
-        string value;
-        getline(in, value);
-        Station.id = stoi(value);
-        return in;
-    }
+void Station::EditStation(int& eff)
+{
+    efficiency = eff;
+}
 
-    Station::Station(void):id(Station::NextID)
-    {
+void Station::EditStation(bool& flag)
+{
+    if (flag == true && working_divisions != total_divisions)
+        working_divisions++;
+    else if (flag == false && working_divisions != 0)
+        working_divisions--;
+    else
+        cout << "Working stations can't be more than total stations or less than 0." << endl;
+}
 
-    }
+int Station::give_id()
+{
+    return id;
+}
 
-    Station& Station::Create_station(Station& s)
-    {
-        cout << "Input name: ";
-        s.station_name = stringCheck();
-        while (1)
-        {
-            cout << "Input total station divisions: ";
-            s.total_divisions = intCheck();
-            cout << "Input working divisions: ";
-            s.working_divisions = intCheck();
-            if (s.working_divisions <= s.total_divisions)
-                break;
-            else
-                cout << "Input error. Can't be more working divisions than total divisions" << endl;
-        }
-        cout << "Input station efficiency: ";
-        s.efficiency = intCheck(0, 100);
-        return s;
-    }
+int Station::give_td()
+{
+    return total_divisions;
+}
+
+std::istream& operator >> (std::istream& in, Station& station)
+{
+    string value;
+    getline(in, value);
+    station.id = stoi(value);
+    getline(in, value);
+    station.station_name = value;
+    getline(in, value);
+    station.total_divisions = stoi(value);
+    getline(in, value);
+    station.working_divisions = stoi(value);
+    getline(in, value);
+    station.efficiency = stoi(value);
+    getline(in, value);
+    station.connectnum = stoi(value);
+    return in;
+}
+
+std::ostream& operator << (std::ostream& out, const Station& station)
+{
+    out << "Station ID:" << station.id << endl << "Station name:" << station.station_name << endl << "Total divisions:" << station.total_divisions << endl << "Working divisions:" << station.working_divisions << endl << "Efficiency:" << station.efficiency << endl;
+    return out;
+}
+
+Station::Station(void) :id(Station::NextID)
+{
+
+}

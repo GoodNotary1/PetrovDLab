@@ -14,9 +14,27 @@
 
 using namespace std;
 
-void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stations, int& retflag)
+void PrintMenu()
 {
-    retflag = 1;
+    cout << endl << "Choose option:" << endl << endl
+        << "1. Add pipe" << endl
+        << "2. Add station" << endl
+        << "3. List objects" << endl
+        << "4. Edit pipe" << endl
+        << "5. Edit station" << endl
+        << "6. Delete pipe" << endl
+        << "7. Delete station" << endl
+        << "8. Save" << endl
+        << "9. Load" << endl
+        << "10. Search" << endl
+        //<< "11. Batch editing" << endl
+        << "12. Connect pipe" << endl
+        << "13. Disconnect pipe" << endl
+        << "0. Exit" << endl;
+}
+
+void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stations)
+{
     {
         pipes.clear();
         stations.clear();
@@ -45,16 +63,6 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
                         int dynam_key = stoi(value);
                         pipes.insert({ dynam_key, {} });
                         file >> pipes[dynam_key];
-                        getline(file, value);
-                        pipes[dynam_key].d = stoi(value);
-                        getline(file, value);
-                        pipes[dynam_key].l = stof(value);
-                        getline(file, value);
-                        pipes[dynam_key].Repair = value == "1";
-                        getline(file, value);
-                        pipes[dynam_key].start = stoi(value);
-                        getline(file, value);
-                        pipes[dynam_key].end = stoi(value);
                     }
                 }
                 if (str == "station_data")
@@ -68,26 +76,15 @@ void LoadFile(unordered_map<int, Pipe>& pipes, unordered_map<int, Station>& stat
                     {
                         getline(file, value);
                         int dynam_key = stoi(value);
-                        stations.insert({ dynam_key,{} });
+                        stations.insert({ dynam_key, {} });
                         file >> stations[dynam_key];
-                        getline(file, value);
-                        stations[dynam_key].station_name = value;
-                        getline(file, value);
-                        stations[dynam_key].total_divisions = stoi(value);
-                        getline(file, value);
-                        stations[dynam_key].working_divisions = stoi(value);
-                        getline(file, value);
-                        stations[dynam_key].efficiency = stoi(value);
                     }
                 }
             }
             cout << "Loading complete" << endl;
-            { retflag = 2; return; };
         }
         else
-        {
-            cout << "File not found" << endl;;
-        }
+            cout << "File not found" << endl;
     }
 }
 
@@ -117,7 +114,7 @@ void SaveFile(int pipe_total, unordered_map<int, Pipe>& pipes, int station_total
                 file << "station_data" << endl << stations.size() << endl << station_total << endl;
                 for (auto kv : stations)
                 {
-                    file << kv.first << endl << stations[kv.first].give_id() << endl << stations[kv.first].station_name << endl << stations[kv.first].total_divisions << endl << stations[kv.first].working_divisions << endl << stations[kv.first].efficiency << endl;
+                    file << kv.first << endl << stations[kv.first].give_id() << endl << stations[kv.first].station_name << endl << stations[kv.first].give_td() << endl << stations[kv.first].working_divisions << endl << stations[kv.first].efficiency << endl << stations[kv.first].connectnum << endl;
                 }
             }
             else
@@ -130,13 +127,15 @@ void SaveFile(int pipe_total, unordered_map<int, Pipe>& pipes, int station_total
     }
 }
 
-void PipeSearchEdit(unordered_map<int, Pipe>& pipes, bool Status, std::function<vector<int>(unordered_map<int, Pipe>& pipes, bool Status)> result)
+using PFilter = std::function<vector<int>(unordered_map<int, Pipe>& pipes, bool Status)>;
+
+void PipeSearchEdit(unordered_map<int, Pipe>& pipes, bool Status, PFilter result)
 {
     auto batch = result(pipes, Status);
     for (int id : batch)
         cout << id << " ";
     cout << endl;
-    cout << "Flip repair status? 1 - yes, 2 - no" << endl;
+    cout << "Manipulate? 1 - yes, 2 - no" << endl;
     if (intCheck(1, 2) == 2)
         return;
 
@@ -144,18 +143,29 @@ void PipeSearchEdit(unordered_map<int, Pipe>& pipes, bool Status, std::function<
 
     cout << "Currently selected pipes:" << endl;
     for (int i = 0; i < batch.size(); i++)
-        cout << i << "(" << batch[i] << ")" << (selector[i] ? "(+) " : "(-) ");
+        cout << i+1 << "(" << batch[i] << ")" << (selector[i] ? "(+) " : "(-) ");
     cout << endl;
     cout << "Input index to toggle selection, input 0 to finish selection" << endl;
     while (int index = intCheck(0, selector.size()))
     {
         selector[index - 1] = !selector[index - 1];
         for (int i = 0; i < batch.size(); i++)
-            cout << i << "(" << batch[i] << ")" << (selector[i] ? "(+) " : "(-) ");
+            cout << i+1 << "(" << batch[i] << ")" << (selector[i] ? "(+) " : "(-) ");
     }
-    for (int i = 0; i < batch.size(); i++)
-        if (selector[i] == true)
-            pipes[batch[i]].Repair = !pipes[batch[i]].Repair;
+    cout << "Input 1 to flip repair status, input 2 to delete pipes: " << endl;
+    if (intCheck() == 1)
+    {
+        for (int i = 0; i < batch.size(); i++)
+            if (selector[i] == true)
+                pipes[batch[i]].Repair = !pipes[batch[i]].Repair;
+    }
+    else
+    {
+        for (int i = 0; i < batch.size(); i++)
+            if (selector[i] == true)
+                if (pipes[batch[i]].start == -1 and pipes[batch[i]].end == -1)
+                    pipes.erase(batch[i]);
+    }
 }
 
 vector<int> PipeSearch(unordered_map<int, Pipe>& pipes, bool Status)
@@ -165,7 +175,8 @@ vector<int> PipeSearch(unordered_map<int, Pipe>& pipes, bool Status)
     {
         if (pipes[kv.first].Repair == Status)
         {
-            pipes[kv.first].PipeOutput();
+            cout << kv.first << endl;
+            cout << kv.second;
             result.push_back(kv.first);
         }
         cout << endl;
@@ -173,101 +184,61 @@ vector<int> PipeSearch(unordered_map<int, Pipe>& pipes, bool Status)
     return result;
 }
 
-void StationSearchBatchEdit(unordered_map<int, Station>& stations, string name, int percent_low, int percent_high, bool parameter_indicator, std::function<vector<int> (unordered_map<int, Station>& stations, string name, int percent_low, int percent_high, bool parameter_indicator)> result)
+using StFilter = std::function<vector<int>(unordered_map<int, Station>& stations, string name, int percent_low, int percent_high, bool parameter_indicator)>;
+
+void StationSearchBatchEdit(unordered_map<int, Station>& stations, string name, int percent_low, int percent_high, bool parameter_indicator, StFilter result)
 {
     auto batch = result(stations, name, percent_low, percent_high, parameter_indicator);
-    for (int i = 0; i < batch.size(); i++)
-        cout << batch.at(i) << " ";
+    for (int id : batch)
+        cout << id << " ";
     cout << endl;
-    if (parameter_indicator == true)
+    cout << "Manipulate? 1 - yes, 2 - no" << endl;
+    if (intCheck(1, 2) == 2)
+        return;
+
+    vector<bool> selector = {};
+    for (int i = 0; i < batch.size(); i++)
+        selector.push_back(true);
+    while (1)
     {
-        cout << "Change name? 1 - yes, 2 - no" << endl;
-        int a = intCheck(1, 2);
-        if (a == 1)
-        {
-            vector<bool> selector = {};
-            for (int i = 0; i < batch.size(); i++)
-                selector.push_back(true);
-            while (1)
-            {
-                cout << "Currently selected stations:" << endl;
-                for (int i = 0; i < batch.size(); i++)
-                    if (selector[i] == true)
-                        cout << batch.at(i) << "(+) ";
-                    else
-                        cout << batch.at(i) << "(-) ";
-                cout << endl;
-                cout << "Input 1 to toggle selection, input 2 to finish selection" << endl;
-                a = intCheck(1, 2);
-                if (a == 1)
-                {
-                    cout << "Input number of station in the sequence:" << endl;
-                    int toggler = intCheck(1, selector.size());
-                    selector[toggler - 1] = !selector[toggler - 1];
-                }
-                if (a == 2)
-                {
-                    break;
-                }
-            }
-            cout << "Input name:" << endl;
-            auto name_buff = stringCheck();
-            for (int i = 0; i < batch.size(); i++)
-                if (selector[i] == true)
-                    stations[batch[i]].station_name = name_buff;
-        }
+        cout << "Currently selected stations:" << endl;
+        for (int i = 0; i < batch.size(); i++)
+            if (selector[i] == true)
+                cout << batch.at(i) << "(+) ";
+            else
+                cout << batch.at(i) << "(-) ";
+        cout << endl;
+        cout << "Input 1 to toggle selection, input 2 to finish selection" << endl;
+        if (intCheck(1, 2) == 2)
+            break;
+        cout << "Input number of station in the sequence:" << endl;
+        int toggler = intCheck(1, selector.size());
+        selector[toggler - 1] = !selector[toggler - 1];
     }
-    if (parameter_indicator == false)
+    cout << "Input 1 to add a working station, input 2 to subtract a working station, input 3 to delete stations: ";
+    int a = intCheck(1, 3);
+    if (a == 1)
     {
-         cout << "Change division number? 1 - yes, 2 - no" << endl;
-        int a = intCheck(1, 2);
-        if (a == 1)
-        {
-            vector<bool> selector = {};
-            for (int i = 0; i < batch.size(); i++)
-                selector.push_back(true);
-            while (1)
-            {
-                cout << "Currently selected stations:" << endl;
-                for (int i = 0; i < batch.size(); i++)
-                    if (selector[i] == true)
-                        cout << batch.at(i) << "(+) ";
-                    else
-                        cout << batch.at(i) << "(-) ";
-                cout << endl;
-                cout << "Input 1 to toggle selection, input 2 to finish selection" << endl;
-                a = intCheck(1, 2);
-                if (a == 1)
-                {
-                    cout << "Input number of station in the sequence:" << endl;
-                    int toggler = intCheck(1, selector.size());
-                    selector[toggler - 1] = !selector[toggler - 1];
-                }
-                if (a == 2)
-                {
-                    break;
-                }
-            }
-            while (1)
-            {
-                cout << "Input total station divisions: ";
-                int total_buff = intCheck();
-                cout << "Input working divisions: ";
-                int working_buff = intCheck();
-                if (working_buff > total_buff)
-                    cout << "Input error. Can't be more working divisions than total divisions" << endl;
+        for (int i = 0; i < batch.size(); i++)
+            if (selector[i] == true)
+                if (stations[batch[i]].working_divisions != stations[batch[i]].give_td())
+                    stations[batch[i]].working_divisions++;
+    }
+    else if (a == 2)
+    {
+        for (int i = 0; i < batch.size(); i++)
+            if (selector[i] == true)
+                if (stations[batch[i]].working_divisions != 0)
+                    stations[batch[i]].working_divisions--;
+    }
+    else
+    {
+        for (int i = 0; i < batch.size(); i++)
+            if (selector[i] == true)
+                if (stations[batch[i]].connectnum == 0)
+                    stations.erase(batch[i]);
                 else
-                {
-                    for (int i = 0; i < batch.size(); i++)
-                        if (selector[i] == true)
-                        {
-                            stations[batch[i]].total_divisions = total_buff;
-                            stations[batch[i]].working_divisions = working_buff;
-                        }
-                    break;
-                }
-            };
-        }
+                    cout << "Station " << batch[i] << " is connected and cannot be deleted." << endl;
     }
 }
 
@@ -280,7 +251,8 @@ vector<int> StationsFilter(unordered_map<int, Station>& stations, string name, i
         {
             if (stations[kv.first].station_name == name)
             {
-                stations[kv.first].StationOutput();
+                cout << kv.first << endl;
+                cout << kv.second;
                 result.push_back(kv.first);
             }
             cout << endl;
@@ -290,10 +262,11 @@ vector<int> StationsFilter(unordered_map<int, Station>& stations, string name, i
     {
         for (auto kv : stations)
         {
-            float division_percent = (stations[kv.first].working_divisions / (float)stations[kv.first].total_divisions) * 100;
+            float division_percent = (stations[kv.first].working_divisions / (float)stations[kv.first].give_td()) * 100;
             if (division_percent >= percent_low && division_percent <= percent_high)
             {
-                stations[kv.first].StationOutput();
+                cout << kv.first;
+                cout << kv.second;
                 result.push_back(kv.first);
             }
             cout << endl;
@@ -316,6 +289,8 @@ void Connect(Pipe& p, unordered_map<int, Station>& stations)
             {
                 p.start = start_buff;
                 p.end = end_buff;
+                stations[start_buff].connectnum++;
+                stations[end_buff].connectnum++;
                 break;
             }
             else
@@ -331,12 +306,14 @@ void Connect(Pipe& p, unordered_map<int, Station>& stations)
     }
 }
 
-void Disconnect(Pipe& p)
+void Disconnect(Pipe& p, unordered_map<int, Station>& stations)
 {
     if (p.start == -1 and p.end == -1)
         cout << "Pipe not connected." << endl;
     else
     {
+        stations[p.start].connectnum--;
+        stations[p.end].connectnum--;
         p.start = -1;
         p.end = -1;
     }
@@ -344,13 +321,12 @@ void Disconnect(Pipe& p)
 
 int main()
 {
-
     unordered_map <int, Pipe> pipes = {};
     unordered_map <int, Station> stations = {};
     while (1)
     {
+        PrintMenu();
         int a = 0;
-        cout << endl << "Choose option:" << endl << endl << "1. Add pipe" << endl << "2. Add station" << endl << "3. List objects" << endl << "4. Edit pipe" << endl << "5. Edit station" << endl << "6. Delete pipe" << endl << "7. Delete station" << endl << "8. Save" << endl << "9. Load" << endl << "10. Search" << endl << "11. Batch editing" << endl << "12. Connect pipe" << endl << "13. Disconnect pipe" << endl << "0. Exit" << endl;
         a = intCheck();
         switch (a)
         {
@@ -361,16 +337,39 @@ int main()
         }
         case 1:
         {
-            Pipe Pipe;
-            pipes.emplace(Pipe.give_id(), Pipe.Create_pipe(Pipe));
+            Pipe pipe;
+            pipe.start = -1;
+            pipe.end = -1;
+            pipe.Repair = false;
+            cout << "Input pipe diameter: ";
+            pipe.d = intCheck();
+            cout << "Input pipe length: ";
+            pipe.l = floatCheck(0);
+            pipes.insert({Pipe::NextID, pipe});
             Pipe::NextID++;
             cout << "Pipe created" << endl;
             break;
         }
         case 2:
         {
-            Station Station;
-            stations.emplace(Station.give_id(), Station.Create_station(Station));
+            Station station;
+            cout << "Input name: " << endl;
+            station.station_name = stringCheck();
+            while (1)
+            {
+                cout << "Input total station divisions: " << endl;
+                station.total_divisions = intCheck();
+                cout << "Input working divisions: " << endl;
+                station.working_divisions = intCheck();
+                if (station.working_divisions <= station.total_divisions)
+                    break;
+                else
+                    cout << "Input error. Can't be more working divisions than total divisions" << endl;
+            }
+            cout << "Input station efficiency: " << endl;
+            station.efficiency = intCheck(0, 100);
+            station.connectnum = 0;
+            stations.insert({Station::NextID, station});
             Station::NextID++;
             cout << "Station created" << endl;
             break;
@@ -383,7 +382,7 @@ int main()
                 for (auto kv : pipes)
                 {
                     cout << kv.first << endl;
-                    pipes[kv.first].PipeOutput();
+                    cout << kv.second << endl;
                     cout << endl;
                 }
             }
@@ -393,7 +392,7 @@ int main()
                 for (auto kv : stations)
                 {
                     cout << kv.first << endl;
-                    stations[kv.first].StationOutput();
+                    cout << kv.second << endl;
                     cout << endl;
                 }
             }
@@ -403,11 +402,12 @@ int main()
         {
             if (pipes.empty() == false)
             {
-                cout << "Input pipe ID to edit: " << endl;
+                cout << "Input pipe ID to edit repair status: " << endl;
                 int input_id = intCheck();
                 if (pipes.find(input_id) != pipes.end())
                 {
                     pipes[input_id].EditPipe(a);
+                    break;
                 }
                 else
                 {
@@ -429,9 +429,36 @@ int main()
                 int input_id = intCheck();
                 if (stations.find(input_id) != stations.end())
                 {
-                    int retflag = 1;
-                    stations[input_id].EditStation(a);
-                    if (retflag == 2) break;
+                    cout << "Input 1 to change name, 2 - to change efficiency, 3 - to add working division, 4 - to subtract division" << endl;
+                    switch (a)
+                    {
+                    case(1):
+                    {
+                        cout << "Input name" << endl;
+                        string name = stringCheck();
+                        stations[input_id].EditStation(name);
+                        break;
+                    }
+                    case(2):
+                    {
+                        cout << "Input efficiewncy" << endl;
+                        int eff = intCheck(0, 100);
+                        stations[input_id].EditStation(eff);
+                        break;
+                    }
+                    case(3):
+                    {
+                        bool flag = true;
+                        stations[input_id].EditStation(flag);
+                        break;
+                    }
+                    case(4):
+                    {
+                        bool flag = false;
+                        stations[input_id].EditStation(flag);
+                        break;
+                    }
+                    }
                     break;
                 }
                 else
@@ -485,13 +512,7 @@ int main()
                 int input_id = intCheck();
                 if (stations.find(input_id) != stations.end())
                 {
-                    bool check = false;
-                    for (auto kv : pipes)
-                    {
-                        if (pipes[kv.first].start == stations[input_id].give_id() or pipes[kv.first].end == stations[input_id].give_id())
-                            check = true;
-                    }
-                    if (check == false)
+                    if (stations[input_id].connectnum == 0)              
                     {
                         stations.erase(input_id);
                         break;
@@ -521,9 +542,8 @@ int main()
         }
         case 9:
         {
-            int retflag;
-            LoadFile(pipes, stations, retflag);
-            if (retflag == 2) break;
+            LoadFile(pipes, stations);
+            break;
         }
         case 10:
         {
@@ -588,7 +608,7 @@ int main()
                 }
             }
         }
-        case 11:
+        /*case 11:
         {
             vector<int> batch = {};
             cout << "Input 1 to edit pipes or 2 to edit stations:" << endl;
@@ -687,7 +707,7 @@ int main()
                         {
                             for (int i = 0; i <= batch.size()-1; i++)
                             {
-                                stations[batch[i]].total_divisions = total_buff;
+                                stations[batch[i]].total_division = total_buff;
                                 stations[batch[i]].working_divisions = working_buff;
                             }
                             break;
@@ -706,7 +726,7 @@ int main()
                     break;
                 }
             }
-        }
+        }*/
         case 12:
         {
             cout << "Input pipe id:" << endl;
@@ -721,9 +741,9 @@ int main()
             cout << "Input pipe id:" << endl;
             int id_buff = intCheck();
             if (pipes.find(id_buff) != pipes.end())
-                if (pipes[id_buff].start == -1 and pipes[id_buff].end == -1)
-                    Disconnect(pipes[id_buff]);
-                else cout << "Pipe is connected. Disconnect pipe first." << endl;
+                if (pipes[id_buff].start != -1 and pipes[id_buff].end != -1)
+                    Disconnect(pipes[id_buff], stations);
+                else cout << "Pipe is already disonnected." << endl;
             else cout << "No such pipe found." << endl;
             break;
         }

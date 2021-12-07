@@ -8,72 +8,54 @@ using namespace std;
 
 int Pipe::NextID = 0;
 
-    void Pipe::PipeOutput()
-    {
-        cout << "Pipe ID:" << id << endl;
-        cout << "Pipe diameter:" << d << endl;
-        cout << "Pipe length:" << l << endl;
-        cout << "Pipe repair status:" << Repair << endl;
-        if (start == -1 and end == -1)
-            cout << "Pipe unconnected" << endl;
-        else
-        {
-            cout << "Pipe start:" << start << endl;
-            cout << "Pipe end:" << end << endl;
-        }
-    }
+void Pipe::EditPipe(int& a)
+{
+    cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
+    Repair = booleanCheck();
+}
 
-    void Pipe::EditPipe(int& a)
-    {
-        {
-            cout << "Choose option:" << endl << endl << "1. Change diameter" << endl << "2. Change length" << endl << "3. Change repair status" << endl << "0. Back" << endl;
-            a = intCheck();
-            switch (a)
-            {
-            case 1:
-                cout << "Input diameter:" << endl;
-                d = intCheck();
-                break;
-            case 2:
-                cout << "Input length:" << endl;
-                l = floatCheck();
-                break;
-            case 3:
-                cout << "Input repair status (1 - curently repairing; 0 - not repairing):" << endl;
-                Repair = booleanCheck();
-                break;
-            case 0:
-                break;
-            }
-        }
-    }
+int Pipe::give_id()
+{
+    return id;
+}
 
-    int Pipe::give_id()
-    {
-        return id;
-    }
+std::istream& operator >> (std::istream& in, Pipe& pipe)
+{
+    string value;
+    getline(in, value);
+    pipe.id = stoi(value);
+    getline(in, value);
+    pipe.d = stoi(value);
+    getline(in, value);
+    pipe.l = stof(value);
+    getline(in, value);
+    pipe.Repair = stoi(value);
+    getline(in, value);
+    pipe.start = stoi(value);
+    getline(in, value);
+    pipe.end = stoi(value);
+    return in;
+}
 
-    std::istream& operator >> (std::istream& in, Pipe& Pipe)
-    {
-        string value;
-        getline(in, value);
-        Pipe.id = stoi(value);
-        return in;
-    }
+std::ostream& operator << (std::ostream& out, const Pipe& pipe)
+{
+    if (pipe.start == -1 and pipe.end == -1)
+        out << "Pipe ID:" << pipe.id << endl
+        << "Pipe diameter:" << pipe.d << endl
+        << "Pipe length:" << pipe.l << endl
+        << "Pipe repair status:" << pipe.Repair << endl
+        << "Pipe unconnected" << endl;
+    else
+        out << "Pipe ID:" << pipe.id << endl 
+        << "Pipe diameter:" << pipe.d << endl 
+        << "Pipe length:" << pipe.l << endl 
+        << "Pipe repair status:" << pipe.Repair << endl 
+        << "Pipe start:" << pipe.start << endl 
+        << "Pipe end:" << pipe.end << endl;
+    return out;
+}
 
-    Pipe::Pipe(void):id(Pipe::NextID)
-    {
-        
-    }
+Pipe::Pipe(void) :id(Pipe::NextID)
+{
 
-    Pipe& Pipe::Create_pipe(Pipe& p)
-    {
-        p.start = -1;
-        p.end = -1;
-        p.Repair = false;
-        cout << "Input pipe diameter: ";
-        p.d = intCheck();
-        cout << "Input pipe length: ";
-        p.l = floatCheck(0);
-        return p;
-    }
+}

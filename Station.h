@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 
 class Station
 {
@@ -12,16 +13,23 @@ public:
     int total_divisions;
     int working_divisions;
     int efficiency;
+    int connectnum;
 
     void StationOutput();
 
-    void EditStation(int& a);
+    void EditStation(std::string& name);
+
+    void EditStation(int& eff);
+
+    void EditStation(bool& flag);
 
     int give_id();
 
+    int give_td();
+
     friend std::istream& operator >> (std::istream& in, Station& Station);
 
-    Station();
+    friend std::ostream& operator << (std::ostream& out, const Station& station);
 
-    Station& Create_station(Station& s);
+    Station();
 };
