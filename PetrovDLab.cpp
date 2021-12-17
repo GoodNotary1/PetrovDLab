@@ -11,6 +11,7 @@
 #include "Checks.h"
 #include "Station.h"
 #include <functional>
+#include <numeric>
 
 using namespace std;
 
@@ -30,6 +31,7 @@ void PrintMenu()
         //<< "11. Batch editing" << endl
         << "12. Connect pipe" << endl
         << "13. Disconnect pipe" << endl
+        << "14. Topographic sorting" << endl
         << "0. Exit" << endl;
 }
 
@@ -430,6 +432,7 @@ int main()
                 if (stations.find(input_id) != stations.end())
                 {
                     cout << "Input 1 to change name, 2 - to change efficiency, 3 - to add working division, 4 - to subtract division" << endl;
+                    int a = intCheck(1, 4);
                     switch (a)
                     {
                     case(1):
@@ -745,6 +748,59 @@ int main()
                     Disconnect(pipes[id_buff], stations);
                 else cout << "Pipe is already disonnected." << endl;
             else cout << "No such pipe found." << endl;
+            break;
+        }
+        case 14:
+        {
+            vector<vector<int>> matrix(stations.size(), vector<int>(stations.size()));
+            vector<int> mat_leg = {};
+            vector<int> result;
+            int i = 0;
+            for (auto kv : stations)
+                mat_leg.push_back(kv.first);
+            for (auto kv : pipes)
+            {
+                if (pipes[kv.first].start != -1 && pipes[kv.first].end != -1)
+                    matrix[find(mat_leg.begin(), mat_leg.end(), pipes[kv.first].start) - mat_leg.begin()][find(mat_leg.begin(), mat_leg.end(), pipes[kv.first].end) - mat_leg.begin()] = 1;
+            }
+            while (1)
+            {
+                int iterator1 = 0;
+                int iterator2 = 0;
+                int sum_vert;
+                for (int i = 0; i < matrix.size(); i++)
+                {
+                    sum_vert = 0;
+                    for (int j = 0; j < matrix.size(); j++)
+                        sum_vert = sum_vert + matrix[j][i];
+                    if (sum_vert == 0 && mat_leg[i] != -1)
+                    {
+                        for (int j = 0; j < matrix.size(); j++)
+                            matrix[i][j] = 0;
+                        result.push_back(mat_leg[i]);
+                        mat_leg[i] = -1;
+                        iterator1 = 0;
+                    }
+                    else
+                        iterator1++;
+                }
+                for (int i = 0; i < mat_leg.size(); i++)
+                {
+                    if (mat_leg[i] == -1)
+                        iterator2++;
+                }
+                if (iterator1 == matrix.size())
+                {
+                    cout << "Cycle found, can't sort.";
+                    break;
+                }
+                if (iterator2 == matrix.size())
+                {
+                    for (int i : result)
+                        cout << i << ' ';
+                    break;
+                }
+            }
             break;
         }
         }
